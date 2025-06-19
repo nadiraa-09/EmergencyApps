@@ -116,22 +116,22 @@
 
 <!-- Remark Modal -->
 <div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content rounded-3 shadow">
-      <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title" id="remarkModalLabel">Tambah Remark</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="remarkBadgeId">
-        <textarea id="remarkText" class="form-control" rows="4" placeholder="Masukkan remark di sini..."></textarea>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary" onclick="saveRemark()">Simpan</button>
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content rounded-3 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="remarkModalLabel">Tambah Remark</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="remarkBadgeId">
+                <textarea id="remarkText" class="form-control" rows="4" placeholder="Masukkan remark di sini..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="saveRemark()">Simpan</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 @endsection
@@ -150,15 +150,27 @@
     });
 
     function toggleActionEmergency(badgeId) {
+
+        console.log("toggleActionEmergency triggered for", badgeId);
+
         const checkbox = document.getElementById(`subscribe_${badgeId}`);
         const editButton = document.getElementById(`editBtn_${badgeId}`);
 
+        if (!checkbox) return;
+
+        // Toggle "Ganti Opsi" button visibility
         if (checkbox.checked) {
-            editButton.classList.remove('d-none');
+            editButton?.classList.remove('d-none');
         } else {
-            editButton.classList.add('d-none');
+            editButton?.classList.add('d-none');
         }
+
+        // ✅ Save checkbox status to sessionStorage
+        const absenStatus = JSON.parse(sessionStorage.getItem("emergencyStatus") || "{}");
+        absenStatus[badgeId] = checkbox.checked;
+        sessionStorage.setItem("emergencyStatus", JSON.stringify(absenStatus));
     }
+
 
     function getDetailEmergency(badgeId) {
         const label = document.querySelector(`label[for="subscribe_${badgeId}"]`);
@@ -198,39 +210,38 @@
     }
 
     function saveEmergencyChecklist() {
-        const rows = $("#tblEmergency tbody tr");
-        const checklist = [];
-
+        const checklistMap = {}; // 🔑 map untuk hindari duplikat
         const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarks") || "{}");
 
-        rows.each(function() {
-            const checkbox = $(this).find(".form-check-input");
+        $("#tblEmergency tbody tr").each(function() {
+            const row = $(this);
+            const checkbox = row.find(".form-check-input");
             const badgeid = checkbox.data("badgeid");
-
             if (!badgeid) return;
 
-            let status = "Hadir";
-            if (checkbox.is(":checked")) {
-                const label = $(`label[for="subscribe_${badgeid}"]`);
-                const labelText = $.trim(label.text());
-                if (labelText) status = labelText;
-            }
+            const isChecked = checkbox.prop("checked");
+            const status = isChecked ? "Absen" : "Hadir";
 
-            checklist.push({
+            // ⛔ Jangan overwrite kalau status sebelumnya Absen
+            if (checklistMap[badgeid] && checklistMap[badgeid].status === "Absen") return;
+
+            checklistMap[badgeid] = {
                 badgeid: badgeid,
                 status: status,
                 inactive: 1,
                 remark: remarks[badgeid] || null
-            });
+            };
         });
 
-        // 🐞 Debug: Check data before sending
-        console.log("Checklist to submit:", checklist);
+        const checklist = Object.values(checklistMap);
+        console.log("✅ Final Checklist:", checklist);
 
         $.ajax({
             url: "{{ route('save-emergency') }}",
             method: "POST",
-            data: JSON.stringify({ checklist }),
+            data: JSON.stringify({
+                checklist
+            }),
             contentType: "application/json",
             success: function(response) {
                 sessionStorage.removeItem("emergencyRemarks");
@@ -263,6 +274,8 @@
         });
     }
 
+
+
     function filterReport() {
         const shift = $('#filterShift').val();
         const line = $('#filterLine').val();
@@ -270,7 +283,10 @@
         $.ajax({
             url: "{{ route('emergency-filter') }}",
             method: "GET",
-            data: { shift, line },
+            data: {
+                shift,
+                line
+            },
             success: function(response) {
                 // Destroy existing DataTables to prevent reinit errors
                 if ($.fn.DataTable.isDataTable('#tblEmergency')) {
@@ -284,11 +300,32 @@
                 $('.dashDataLeave').html(response);
                 $('.dashDataEvacuation').html(response);
 
-                // Delay slightly to allow DOM update
                 setTimeout(() => {
                     $('#tblEmergency').DataTable();
                     $('#tblEvacuation').DataTable();
-                }, 10);
+
+                    // ✅ Re-attach onchange for each checkbox after DOM replaced
+                    document.querySelectorAll("#tblEmergency .form-check-input").forEach(cb => {
+                        cb.onchange = () => {
+                            const badgeid = cb.dataset.badgeid;
+                            toggleActionEmergency(badgeid); // now it will be called!
+                        };
+                    });
+
+                    // ✅ Restore checkbox state from sessionStorage
+                    const absenStatus = JSON.parse(sessionStorage.getItem("emergencyStatus") || "{}");
+                    Object.entries(absenStatus).forEach(([badgeid, checked]) => {
+                        const checkbox = document.getElementById(`subscribe_${badgeid}`);
+                        const editBtn = document.getElementById(`editBtn_${badgeid}`);
+                        if (checkbox) {
+                            checkbox.checked = checked;
+                            if (editBtn) {
+                                editBtn.classList.toggle("d-none", !checked);
+                            }
+                        }
+                    });
+
+                }, 50);
             },
             error: function(xhr) {
                 console.error("Filter error", xhr);
@@ -296,8 +333,6 @@
             }
         });
     }
-
-
 
     window.emergencyRemarks = {};
 
@@ -346,6 +381,11 @@
             timer: 1500
         });
     }
+
+    window.addEventListener('load', function() {
+        sessionStorage.removeItem("emergencyStatus");
+        sessionStorage.removeItem("emergencyRemarks");
+    });
 </script>
 
 @endsection

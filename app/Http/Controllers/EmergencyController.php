@@ -32,7 +32,7 @@ class EmergencyController extends Controller
 
         if ($shift !== 'All') {
             $query->whereHas('shift', function ($q) use ($shift) {
-                $q->where('shift', $shift);
+                $q->where('curshift', $shift);
             });
         }
 

@@ -76,7 +76,7 @@ class EmergencyController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'message' => 'Validation Error',
+                    'message' => 'Validation Data Error',
                     'errors' => $validator->errors()
                 ], 422);
             }

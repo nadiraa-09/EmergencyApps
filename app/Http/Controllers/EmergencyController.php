@@ -92,7 +92,7 @@ class EmergencyController extends Controller
                     ]);
             }
 
-            return response()->json(['message' => 'Success save']);
+            return response()->json(['message' => 'Success saving emergency record'], 200);
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => 'Server Error',

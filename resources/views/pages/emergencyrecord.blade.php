@@ -158,14 +158,12 @@
 
         if (!checkbox) return;
 
-        // Toggle "Ganti Opsi" button visibility
         if (checkbox.checked) {
             editButton?.classList.remove('d-none');
         } else {
             editButton?.classList.add('d-none');
         }
 
-        // ✅ Save checkbox status to sessionStorage
         const absenStatus = JSON.parse(sessionStorage.getItem("emergencyStatus") || "{}");
         absenStatus[badgeId] = checkbox.checked;
         sessionStorage.setItem("emergencyStatus", JSON.stringify(absenStatus));
@@ -210,7 +208,7 @@
     }
 
     function saveEmergencyChecklist() {
-        const checklistMap = {}; // 🔑 map untuk hindari duplikat
+        const checklistMap = {};
         const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarks") || "{}");
 
         $("#tblEmergency tbody tr").each(function() {
@@ -222,7 +220,6 @@
             const isChecked = checkbox.prop("checked");
             const status = isChecked ? "Absen" : "Hadir";
 
-            // ⛔ Jangan overwrite kalau status sebelumnya Absen
             if (checklistMap[badgeid] && checklistMap[badgeid].status === "Absen") return;
 
             checklistMap[badgeid] = {
@@ -234,7 +231,6 @@
         });
 
         const checklist = Object.values(checklistMap);
-        console.log("✅ Final Checklist:", checklist);
 
         $.ajax({
             url: "{{ route('save-emergency') }}",
@@ -274,8 +270,6 @@
         });
     }
 
-
-
     function filterReport() {
         const shift = $('#filterShift').val();
         const line = $('#filterLine').val();
@@ -288,7 +282,6 @@
                 line
             },
             success: function(response) {
-                // Destroy existing DataTables to prevent reinit errors
                 if ($.fn.DataTable.isDataTable('#tblEmergency')) {
                     $('#tblEmergency').DataTable().destroy();
                 }
@@ -296,7 +289,6 @@
                     $('#tblEvacuation').DataTable().destroy();
                 }
 
-                // Replace both content blocks
                 $('.dashDataLeave').html(response);
                 $('.dashDataEvacuation').html(response);
 
@@ -304,15 +296,13 @@
                     $('#tblEmergency').DataTable();
                     $('#tblEvacuation').DataTable();
 
-                    // ✅ Re-attach onchange for each checkbox after DOM replaced
                     document.querySelectorAll("#tblEmergency .form-check-input").forEach(cb => {
                         cb.onchange = () => {
                             const badgeid = cb.dataset.badgeid;
-                            toggleActionEmergency(badgeid); // now it will be called!
+                            toggleActionEmergency(badgeid);
                         };
                     });
 
-                    // ✅ Restore checkbox state from sessionStorage
                     const absenStatus = JSON.parse(sessionStorage.getItem("emergencyStatus") || "{}");
                     Object.entries(absenStatus).forEach(([badgeid, checked]) => {
                         const checkbox = document.getElementById(`subscribe_${badgeid}`);

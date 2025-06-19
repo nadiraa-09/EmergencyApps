@@ -82,12 +82,14 @@ class EmergencyController extends Controller
             }
 
             foreach ($data['checklist'] as $item) {
-                Record::update([
-                    'status' => $item['status'],
-                    'inactive' => $item['inactive'],
-                    'remark' => $item['remark'] ?? null,
-                    'updatedBy' => Auth::user()->username,
-                ]);
+                Record::where('badgeid', $item['badgeid'])
+                    ->where('inactive', 1)
+                    ->update([
+                        'status' => $item['status'],
+                        'inactive' => $item['inactive'],
+                        'remark' => $item['remark'] ?? null,
+                        'updatedBy' => Auth::user()->username,
+                    ]);
             }
 
             return response()->json(['message' => 'Success save']);

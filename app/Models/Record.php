@@ -12,18 +12,8 @@ class Record extends Model
     protected $fillable = ['badgeid', 'status', 'inactive', 'createdBy', 'updatedBy', 'remark'];
     public $timestamps = true;
 
-    public function role()
-    {
-        return $this->belongsTo(Role::class, 'roleId', 'id');
-    }
-
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'cardid', 'cardid');
-    }
-
-    public function department()
-    {
-        return $this->belongsTo(Department::class, 'departmentId', 'id');
+        return $this->belongsTo(Employee::class, 'badgeid', 'badgeid');
     }
 }

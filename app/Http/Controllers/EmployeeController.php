@@ -34,7 +34,7 @@ class EmployeeController extends Controller
         }
 
         return view('pages.employee', [
-            'menu' => 'Employee Record',
+            'menu' => 'Master Data',
             'areas' => Area::all(),
             'departments' => Department::all(),
             'lines' => Line::all(),

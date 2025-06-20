@@ -51,8 +51,8 @@
         </a>
     </li>
     <li class="nav-item">
-        <a href="{{ asset('pages/report') }}" class="nav-link">
-            <i class="nav-icon fas fa-table"></i>
+        <a href="{{ asset('pages/report') }}" class="nav-link {{ Request::routeIs('report') ? 'active' : '' }}">
+            <i class=" nav-icon fas fa-table"></i>
             <p>
                 Report
             </p>

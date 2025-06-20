@@ -15,7 +15,7 @@
                 <th>No</th>
                 <th>Badge ID</th>
                 <th>Name</th>
-                <!-- <th>Shift</th> -->
+                <th class="d-none">Shift</th>
                 <th>Status Kehadiran</th>
                 <th>Action</th>
                 <th>Remark</th>
@@ -28,6 +28,7 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $data->badgeid }}</td>
                 <td>{{ $data->name }}</td>
+                <td class="d-none">{{ $data->shift->curshift }}</td>
 
                 @php
                 $status = $data->record?->status;

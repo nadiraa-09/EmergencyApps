@@ -220,13 +220,16 @@
             const isChecked = checkbox.prop("checked");
             const status = isChecked ? "Absen" : "Hadir";
 
+            const shift = row.find("td:nth-child(4)").text().trim();
+
             if (checklistMap[badgeid] && checklistMap[badgeid].status === "Absen") return;
 
             checklistMap[badgeid] = {
                 badgeid: badgeid,
                 status: status,
                 inactive: 1,
-                remark: remarks[badgeid] || null
+                remark: remarks[badgeid] || null,
+                curshift: shift,
             };
         });
 
@@ -269,6 +272,7 @@
             }
         });
     }
+
 
     function filterReport() {
         const shift = $('#filterShift').val();

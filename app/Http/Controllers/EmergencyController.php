@@ -72,6 +72,7 @@ class EmergencyController extends Controller
                 'checklist.*.status' => 'required|string',
                 'checklist.*.inactive' => 'required|boolean',
                 'checklist.*.remark' => 'nullable|string|max:255',
+                'checklist.*.curshift' => 'required|string|max:50',
             ]);
 
             if ($validator->fails()) {
@@ -88,6 +89,7 @@ class EmergencyController extends Controller
                         'status' => $item['status'],
                         'inactive' => $item['inactive'],
                         'remark' => $item['remark'] ?? null,
+                        'curshift' => $item['curshift'],
                         'updatedBy' => Auth::user()->username,
                     ]);
             }
@@ -100,6 +102,7 @@ class EmergencyController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Show the form for creating a new resource.

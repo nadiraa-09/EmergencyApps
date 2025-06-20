@@ -13,6 +13,7 @@ use App\Models\Leavetype;
 use App\Models\Requestleave;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -21,16 +22,76 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $datas = Record::all();
+        $today = now();
+        $month = $today->month;
+        $year = $today->year;
+
+        $query = Record::with([
+            'employee.area',
+            'employee.department',
+            'employee.line',
+            'employee.shift'
+        ])
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->whereHas('employee');
+
+        $records = $query->get()->groupBy('badgeid');
+
         return view('pages.report', [
             'menu' => 'Report',
             'employees' => Employee::all(),
             'areas' => Area::all(),
-            'lines' => Line::all(),
             'departments' => Department::all(),
-            'records' => Record::all(),
-        ])->with('datas', $datas);
+            'lines' => Line::all(),
+            'records' => $records,
+            'month' => $month,
+            'year' => $year,
+            'daysInMonth' => $today->daysInMonth,
+        ]);
     }
+
+
+    public function filter(Request $request)
+    {
+        $month = (int) $request->input('month');
+        $year = (int) $request->input('year');
+
+        $query = Record::with([
+            'employee.area',
+            'employee.department',
+            'employee.line',
+            'employee.shift'
+        ])
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->whereHas('employee');
+
+        if ($request->filled('area_id') && $request->area_id !== 'All') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('areaId', $request->area_id);
+            });
+        }
+
+        if ($request->filled('department_id') && $request->department_id !== 'All') {
+            $query->whereHas('employee', function ($q) use ($request) {
+                $q->where('departmentId', $request->department_id);
+            });
+        }
+
+        $records = $query->get()->groupBy('badgeid');
+
+        // Hitung jumlah hari di bulan untuk blade
+        $daysInMonth = now()->setYear($year)->setMonth($month)->daysInMonth;
+
+        return view('pages.report.tblreport', [
+            'records' => $records,
+            'month' => $month,
+            'year' => $year,
+            'daysInMonth' => $daysInMonth,
+        ]);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -56,41 +117,7 @@ class ReportController extends Controller
         //
     }
 
-    public function filter(Request $request)
-    {
-        $query = Record::with([
-            'employee.area',
-            'employee.department',
-            'employee.line',
-            'employee.shift'
-        ])
-            ->whereHas('employee');
 
-
-        if ($request->filled('area_id') && $request->area_id !== 'All') {
-            $query->whereHas('employee', function ($q) use ($request) {
-                $q->where('areaId', $request->area_id);
-            });
-        }
-
-        if ($request->filled('department_id') && $request->department_id !== 'All') {
-            $query->whereHas('employee', function ($q) use ($request) {
-                $q->where('departmentId', $request->department_id);
-            });
-        }
-
-        if ($request->filled('month')) {
-            $query->whereMonth('created_at', $request->month);
-        }
-
-        if ($request->filled('year')) {
-            $query->whereYear('created_at', $request->year);
-        }
-
-        $datas = $query->orderBy('id', 'asc')->get();
-
-        return view('pages.report.tblreport')->with('datas', $datas);
-    }
 
 
     /**

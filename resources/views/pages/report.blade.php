@@ -95,7 +95,6 @@
 @endsection
 
 @section('scripts')
-
 <script>
     $.ajaxSetup({
         headers: {
@@ -117,42 +116,34 @@
     }
 
     const filterReport = () => {
-        const areaId = $('#filterArea').val();
-        const departmentId = $('#filterDepartment').val();
-        const month = $('#Month').val();
-        const year = $('#Year').val();
+        let area_id = $('#filterArea').val();
+        let department_id = $('#filterDepartment').val();
+        let month = $('#Month').val();
+        let year = $('#Year').val();
 
         $.ajax({
+            dataType: "html",
+            type: "POST",
             url: `{{ route('reportfilter') }}`,
-            method: "POST",
             data: {
-                area_id: areaId,
-                department_id: departmentId,
+                area_id: area_id,
+                department_id: department_id,
                 month: month,
-                year: year,
+                year: year
             },
             success: (response) => {
                 $(".dashDataReportRequest").html(response);
-                $('#tblReportRequest').DataTable({
-                    responsive: true,
-                    lengthChange: false,
-                    autoWidth: false,
-                    destroy: true, // important to reinit
-                    buttons: ["copy", "excel", "pdf", "print"]
+                var table = $('#tblReportRequest').DataTable({
+                    "responsive": true,
+                    "lengthChange": false,
+                    "autoWidth": false,
+                    "buttons": ["copy", "excel", "pdf", "print"]
                 }).buttons().container().appendTo('#tblReportRequest_wrapper .col-md-6:eq(0)');
             },
-            error: (xhr, status, error) => {
-                console.error(error);
+            error: (requestObject, error, errorThrown) => {
+                errorToast(error);
             }
         });
     }
 </script>
 @endsection
-
-{{-- <script src="../plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="../plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="../plugins/jszip/jszip.min.js"></script>
-<script src="../plugins/pdfmake/pdfmake.min.js"></script>
-<script src="../plugins/pdfmake/vfs_fonts.js"></script>
-<script src="../plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="../plugins/datatables-buttons/js/buttons.print.min.js"></script> --}}

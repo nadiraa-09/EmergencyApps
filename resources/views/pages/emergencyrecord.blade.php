@@ -28,7 +28,7 @@
 
                         <div class="row p-2">
                             <!-- Filter Shift -->
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="filterShift">Pilih Shift</label>
                                     <select name="filterShift" id="filterShift" onchange="filterReport()" class="form-control">
@@ -39,13 +39,12 @@
                                         <option value="3">Malam</option>
                                     </select>
                                 </div>
-                            </div>
 
-                            <!-- Filter Line -->
-                            <div class="col-md-6">
+                                <!-- Filter Line -->
                                 <div class="form-group">
                                     <label for="filterLine">Pilih Line</label>
                                     <select name="filterLine" id="filterLine" onchange="filterReport()" class="form-control">
+                                        <option value="All">All</option>
                                         <option value="All">All</option>
                                         @foreach ($lines as $line)
                                         <option value="{{ $line->id }}">{{ $line->name }}</option>
@@ -59,7 +58,7 @@
                         <div class="tab-content" id="custom-tabs-content">
                             <div class="tab-pane fade show active" id="emergency" role="tabpanel">
                                 <div class="dashDataLeave">
-                                    @include('pages.emergency.tblemergency')
+                                    @include('pages.emergency.tbldailyattendace')
                                 </div>
                             </div>
                             <div class="tab-pane fade" id="another" role="tabpanel">
@@ -138,95 +137,164 @@
 
 @section('scripts')
 <script>
+    // Global Setup
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
+
     $(document).ready(() => {
-        $('#tblEmergency').DataTable();
+        $('#tbldailyattendace').DataTable();
         $('#tblEvacuation').DataTable();
 
+        $('#filterShift').val('All');
+        $('#filterLine').val('All');
+
+        filterReport();
     });
 
+    window.addEventListener('load', function() {
+        sessionStorage.removeItem("emergencyStatus");
+        sessionStorage.removeItem("emergencyRemarksDaily");
+        sessionStorage.removeItem("emergencyRemarksEvacuation");
+    });
+
+    window.emergencyRemarksDaily = {};
+    window.emergencyRemarksEvacuation = {};
+    let currentRemarkContext = null;
+
     function toggleActionEmergency(badgeId) {
-
-        console.log("toggleActionEmergency triggered for", badgeId);
-
         const checkbox = document.getElementById(`subscribe_${badgeId}`);
         const editButton = document.getElementById(`editBtn_${badgeId}`);
 
         if (!checkbox) return;
 
-        if (checkbox.checked) {
-            editButton?.classList.remove('d-none');
-        } else {
-            editButton?.classList.add('d-none');
-        }
+        editButton?.classList.toggle('d-none', !checkbox.checked);
 
         const absenStatus = JSON.parse(sessionStorage.getItem("emergencyStatus") || "{}");
         absenStatus[badgeId] = checkbox.checked;
         sessionStorage.setItem("emergencyStatus", JSON.stringify(absenStatus));
     }
 
-
-    function getDetailEmergency(badgeId) {
-        const label = document.querySelector(`label[for="subscribe_${badgeId}"]`);
-        if (label) {
-            if (label.textContent === "Absen") {
-                label.textContent = "Masuk setengah hari";
-                label.classList.add("text-danger");
-            } else {
-                label.textContent = "Absen";
-                label.classList.remove("text-danger");
-            }
-        }
-    }
-
     function toggleActionEvacuation(badgeId) {
         const checkbox = document.getElementById(`subscribe2_${badgeId}`);
         const editButton = document.getElementById(`editBtn2_${badgeId}`);
 
-        if (checkbox.checked) {
-            editButton.classList.remove('d-none');
+        if (!checkbox || !editButton) return;
+
+        editButton.classList.toggle('d-none', !checkbox.checked);
+    }
+
+    function getDetailEmergency(badgeId) {
+        const label = document.querySelector(`label[for="subscribe_${badgeId}"]`);
+        if (!label) return;
+
+        if (label.textContent === "Absen") {
+            label.textContent = "Masuk setengah hari";
+            label.classList.add("text-danger");
         } else {
-            editButton.classList.add('d-none');
+            label.textContent = "Absen";
+            label.classList.remove("text-danger");
         }
     }
 
     function getDetailEvacuation(badgeId) {
         const label = document.querySelector(`label[for="subscribe2_${badgeId}"]`);
-        if (label) {
-            if (label.textContent === "Absen") {
-                label.textContent = "Masuk setengah hari";
-                label.classList.add("text-danger");
-            } else {
-                label.textContent = "Absen";
-                label.classList.remove("text-danger");
-            }
+        if (!label) return;
+
+        if (label.textContent === "Absen") {
+            label.textContent = "Pulang setengah hari";
+            label.classList.add("text-warning");
+        } else if (label.textContent === "Pulang setengah hari") {
+            label.textContent = "Hadir";
+            label.classList.remove("text-warning");
+        } else {
+            label.textContent = "Absen";
+            label.classList.remove("text-warning");
         }
     }
 
-    function saveEmergencyChecklist() {
-        const checklistMap = {};
-        const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarks") || "{}");
+    function addremarkdaily(badgeid) {
+        currentRemarkContext = 'daily';
+        $("#remarkBadgeId").val(badgeid);
+        const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarksDaily") || "{}");
+        $("#remarkText").val(remarks[badgeid] || "");
 
-        $("#tblEmergency tbody tr").each(function() {
+        const modal = new bootstrap.Modal(document.getElementById("remarkModal"));
+        modal.show();
+        setTimeout(() => $("#remarkText").focus(), 300);
+    }
+
+    function addremarkevacuation(badgeid) {
+        currentRemarkContext = 'evacuation';
+        $("#remarkBadgeId").val(badgeid);
+        const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarksEvacuation") || "{}");
+        $("#remarkText").val(remarks[badgeid] || "");
+
+        const modal = new bootstrap.Modal(document.getElementById("remarkModal"));
+        modal.show();
+        setTimeout(() => $("#remarkText").focus(), 300);
+    }
+
+    function saveRemark() {
+        const badgeid = $("#remarkBadgeId").val();
+        const remark = $("#remarkText").val().trim();
+        const storageKey = currentRemarkContext === 'evacuation' ?
+            "emergencyRemarksEvacuation" :
+            "emergencyRemarksDaily";
+
+        const remarks = JSON.parse(sessionStorage.getItem(storageKey) || "{}");
+        remarks[badgeid] = remark;
+        sessionStorage.setItem(storageKey, JSON.stringify(remarks));
+
+        const display = remark !== "" ? remark : "-";
+        const targetId = currentRemarkContext === 'evacuation' ?
+            `#remarkTextEvac_${badgeid}` :
+            `#remarkTextDaily_${badgeid}`;
+        $(targetId).text(display);
+
+        setTimeout(() => {
+            const modalEl = document.getElementById("remarkModal");
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.hide();
+            }
+        }, 100);
+
+        Swal.fire({
+            toast: true,
+            position: 'bottom-end',
+            icon: 'success',
+            title: 'Remark disimpan',
+            background: '#28a745',
+            color: '#fff',
+            iconColor: '#fff',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
+
+    function saveChecklistDaily() {
+        const checklistMap = {};
+        const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarksDaily") || "{}");
+
+        $("#tbldailyattendace tbody tr").each(function() {
             const row = $(this);
             const checkbox = row.find(".form-check-input");
             const badgeid = checkbox.data("badgeid");
             if (!badgeid) return;
 
-            const isChecked = checkbox.prop("checked");
-            const status = isChecked ? "Absen" : "Hadir";
+            const label = row.find(`label[for="subscribe_${badgeid}"]`);
+            const status = checkbox.prop("checked") ?
+                (label.text().trim() === "Masuk setengah hari" ? "Masuk setengah hari" : "Absen") :
+                "Hadir";
 
             const shift = row.find("td:nth-child(4)").text().trim();
 
-            if (checklistMap[badgeid] && checklistMap[badgeid].status === "Absen") return;
-
             checklistMap[badgeid] = {
-                badgeid: badgeid,
-                status: status,
+                badgeid,
+                status,
                 inactive: 1,
                 remark: remarks[badgeid] || null,
                 curshift: shift,
@@ -243,7 +311,76 @@
             }),
             contentType: "application/json",
             success: function(response) {
-                sessionStorage.removeItem("emergencyRemarks");
+                sessionStorage.removeItem("emergencyRemarksDaily");
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-end',
+                    icon: 'success',
+                    title: response.message || "Success save data",
+                    background: '#28a745',
+                    color: '#fff',
+                    iconColor: '#fff',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    willClose: () => location.reload()
+                });
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-end',
+                    icon: 'error',
+                    title: xhr.responseJSON?.message || "Error save data",
+                    background: '#dc3545',
+                    color: '#fff',
+                    iconColor: '#fff',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        });
+    }
+
+    function saveChecklistEvacuation() {
+        const checklistMap = {};
+        const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarksEvacuation") || "{}");
+
+        $("#tblEvacuation tbody tr").each(function() {
+            const row = $(this);
+            const checkbox = row.find(".form-check-input");
+            let badgeid = checkbox.attr("id");
+            if (!badgeid) return;
+
+            badgeid = badgeid.replace("subscribe2_", "");
+
+            const label = row.find(`label[for="subscribe2_${badgeid}"]`);
+            const labelText = label.text().trim();
+            const status = checkbox.prop("checked") ?
+                (labelText === "Pulang setengah hari" ? "Pulang setengah hari" : "Hadir") :
+                "Absen";
+
+            const shift = row.find("td:nth-child(4)").text().trim();
+
+            checklistMap[badgeid] = {
+                badgeid,
+                status,
+                inactive: 1,
+                remark: remarks[badgeid] || null,
+                curshift: shift,
+            };
+        });
+
+        const checklist = Object.values(checklistMap);
+
+        $.ajax({
+            url: "{{ route('save-evacuation') }}",
+            method: "POST",
+            data: JSON.stringify({
+                checklist
+            }),
+            contentType: "application/json",
+            success: function(response) {
+                sessionStorage.removeItem("emergencyRemarksEvacuation");
                 Swal.fire({
                     toast: true,
                     position: 'bottom-end',
@@ -278,6 +415,8 @@
         const shift = $('#filterShift').val();
         const line = $('#filterLine').val();
 
+        toggleEmergencyColumns(shift);
+
         $.ajax({
             url: "{{ route('emergency-filter') }}",
             method: "GET",
@@ -286,21 +425,21 @@
                 line
             },
             success: function(response) {
-                if ($.fn.DataTable.isDataTable('#tblEmergency')) {
-                    $('#tblEmergency').DataTable().destroy();
+                if ($.fn.DataTable.isDataTable('#tbldailyattendace')) {
+                    $('#tbldailyattendace').DataTable().destroy();
                 }
                 if ($.fn.DataTable.isDataTable('#tblEvacuation')) {
                     $('#tblEvacuation').DataTable().destroy();
                 }
 
-                $('.dashDataLeave').html(response);
-                $('.dashDataEvacuation').html(response);
+                $('.dashDataLeave').html(response.daily);
+                $('.dashDataEvacuation').html(response.evacuation);
 
                 setTimeout(() => {
-                    $('#tblEmergency').DataTable();
+                    $('#tbldailyattendace').DataTable();
                     $('#tblEvacuation').DataTable();
 
-                    document.querySelectorAll("#tblEmergency .form-check-input").forEach(cb => {
+                    document.querySelectorAll("#tbldailyattendace .form-check-input").forEach(cb => {
                         cb.onchange = () => {
                             const badgeid = cb.dataset.badgeid;
                             toggleActionEmergency(badgeid);
@@ -319,6 +458,7 @@
                         }
                     });
 
+                    toggleEmergencyColumns(shift);
                 }, 50);
             },
             error: function(xhr) {
@@ -328,58 +468,20 @@
         });
     }
 
-    window.emergencyRemarks = {};
+    function toggleEmergencyColumns(shift) {
+        const isAll = shift === "All";
 
-    function addremark(badgeid) {
-        $("#remarkBadgeId").val(badgeid);
+        $('#saveChecklistDaily').toggle(!isAll);
+        $('#saveChecklistEvacuation').toggle(!isAll);
 
-        const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarks") || "{}");
-        $("#remarkText").val(remarks[badgeid] || "");
+        $('.col-action, .col-remark').each(function() {
+            $(this).css('display', isAll ? 'none' : '');
+        });
 
-        const modal = new bootstrap.Modal(document.getElementById("remarkModal"));
-        modal.show();
-
-        setTimeout(() => $("#remarkText").focus(), 300);
-    }
-
-    function saveRemark() {
-        const badgeid = $("#remarkBadgeId").val();
-        const remark = $("#remarkText").val().trim();
-
-        const remarks = JSON.parse(sessionStorage.getItem("emergencyRemarks") || "{}");
-
-        remarks[badgeid] = remark;
-
-        sessionStorage.setItem("emergencyRemarks", JSON.stringify(remarks));
-
-        const display = remark !== "" ? remark : "-";
-        $(`#remarkText_${badgeid}`).text(display);
-
-        setTimeout(() => {
-            const modalEl = document.getElementById("remarkModal");
-            if (modalEl) {
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.hide();
-            }
-        }, 100);
-
-        Swal.fire({
-            toast: true,
-            position: 'bottom-end',
-            icon: 'success',
-            title: 'Remark disimpan',
-            background: '#28a745',
-            color: '#fff',
-            iconColor: '#fff',
-            showConfirmButton: false,
-            timer: 1500
+        $('.col-shift').each(function() {
+            $(this).css('display', isAll ? '' : 'none');
         });
     }
-
-    window.addEventListener('load', function() {
-        sessionStorage.removeItem("emergencyStatus");
-        sessionStorage.removeItem("emergencyRemarks");
-    });
 </script>
 
 @endsection

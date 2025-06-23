@@ -50,15 +50,13 @@ Route::prefix('pages')->group(function () {
     Route::patch('employeeinactive/{id}', [EmployeeController::class, 'inactive'])->middleware(['auth', 'mustAdmin'])->name('inactive-employee');
     Route::get('filteremployee', [EmployeeController::class, 'index'])->name('employee-filter');
 
-
-
     Route::get('shift', [ShiftController::class, 'index'])->middleware(['auth', 'mustAdmin'])->name('shift');
     Route::post('shiftadd', [ShiftController::class, 'store'])->middleware(['auth', 'mustAdmin'])->name('upload-shift');
 
     Route::get('emergency', [EmergencyController::class, 'index'])->middleware(['auth', 'mustAdmin'])->name('emergency');
     Route::post('save-emergency', [EmergencyController::class, 'store'])->middleware(['auth', 'mustAdmin'])->name('save-emergency');
+    Route::post('save-evacuation', [EmergencyController::class, 'storeEvacuation'])->middleware(['auth', 'mustAdmin'])->name('save-evacuation');
     Route::get('filteremergency', [EmergencyController::class, 'index'])->name('emergency-filter');
-
 
     Route::get('report', [ReportController::class, 'index'])->middleware('auth')->name('report');
     Route::post('report', [ReportController::class, 'filter'])->middleware('auth')->name('reportfilter');

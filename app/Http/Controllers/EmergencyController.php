@@ -8,6 +8,7 @@ use App\Models\Area;
 use App\Models\Line;
 use App\Models\Role;
 use App\Models\Record;
+use App\Models\Evacuation;
 use App\Models\Shift;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -27,8 +28,7 @@ class EmergencyController extends Controller
         $shift = $request->query('shift', 'All');
         $line = $request->query('line', 'All');
 
-        $query = Employee::with(['shift', 'line'])
-            ->where('inactive', '1');
+        $query = Employee::with(['shift', 'line'])->where('inactive', '1');
 
         if ($shift !== 'All') {
             $query->whereHas('shift', function ($q) use ($shift) {
@@ -43,7 +43,10 @@ class EmergencyController extends Controller
         $datas = $query->orderBy('badgeid', 'asc')->latest()->paginate(1000000);
 
         if ($request->ajax()) {
-            return view('pages.emergency.tblemergency')->with('datas', $datas)->render();
+            return response()->json([
+                'daily' => view('pages.emergency.tbldailyattendace', compact('datas'))->render(),
+                'evacuation' => view('pages.emergency.tblevacuation', compact('datas'))->render()
+            ]);
         }
 
         return view('pages.emergencyrecord', [
@@ -53,10 +56,12 @@ class EmergencyController extends Controller
             'roles' => Role::all(),
             'shifts' => Shift::all(),
             'records' => Record::all(),
+            'evacuations' => Evacuation::all(),
             'departments' => Department::all(),
             'datas' => $datas,
         ]);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -103,6 +108,47 @@ class EmergencyController extends Controller
         }
     }
 
+    public function storeEvacuation(Request $request)
+    {
+        try {
+            $data = $request->json()->all();
+
+            $validator = Validator::make($data, [
+                'checklist' => 'required|array',
+                'checklist.*.badgeid' => 'required|string',
+                'checklist.*.status' => 'required|string',
+                'checklist.*.inactive' => 'required|boolean',
+                'checklist.*.remark' => 'nullable|string|max:255',
+                'checklist.*.curshift' => 'required|string|max:50',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation Data Error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            foreach ($data['checklist'] as $item) {
+                Evacuation::where('badgeid', $item['badgeid'])
+                    ->where('inactive', 1)
+                    ->update([
+                        'status' => $item['status'],
+                        'inactive' => $item['inactive'],
+                        'remark' => $item['remark'] ?? null,
+                        'curshift' => $item['curshift'],
+                        'updatedBy' => Auth::user()->username,
+                    ]);
+            }
+
+            return response()->json(['message' => 'Success saving evacuation record'], 200);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Server Error',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     /**
      * Show the form for creating a new resource.

@@ -55,4 +55,10 @@ class Employee extends Model
         return $this->hasOne(Record::class, 'badgeid', 'badgeid')
             ->where('inactive', 1);
     }
+
+    public function evacuation()
+    {
+        return $this->hasOne(Evacuation::class, 'badgeid', 'badgeid')
+            ->where('inactive', 1);
+    }
 }

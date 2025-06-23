@@ -34,7 +34,9 @@ Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth');
 
 Route::prefix('pages')->group(function () {
     Route::get('/', [DashboardController::class, 'index']);
-    Route::get('dashboard', [DashboardController::class, 'index'])->middleware('auth');
+    Route::get('dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+    Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+
 
     Route::get('user', [UserController::class, 'index'])->middleware(['auth', 'mustAdmin'])->name('user');
     Route::post('useradd', [UserController::class, 'store'])->middleware(['auth', 'mustAdmin'])->name('add-user');

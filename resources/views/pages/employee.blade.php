@@ -15,7 +15,7 @@
                         </div>
                     </div>
 
-                    <div class="card-body">
+                    <div class="card-body">getDetailEmployee
                         <div class="row p-2">
                             <!-- Full width filter -->
                             <div class="col-md-12">

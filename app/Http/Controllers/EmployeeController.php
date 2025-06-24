@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Area;
 use App\Models\Line;
 use App\Models\Role;
+use App\Models\User;
 use App\Models\Department;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,6 +40,7 @@ class EmployeeController extends Controller
             'departments' => Department::all(),
             'lines' => Line::all(),
             'roles' => Role::all(),
+            'users' => User::all(),
             'datas' => $datas,
         ]);
     }
@@ -88,23 +90,30 @@ class EmployeeController extends Controller
      */
     public function show(Request $request)
     {
-        $params = $request->all();
-        $id = $params["id"];
-        $datas = Employee::where('badgeid', $id)->first();
+        $id = $request->input('id');
 
-        if (!$datas) {
+        $employee = Employee::where('badgeid', $id)->first();
+
+        if (!$employee) {
             return response()->json([
                 'message' => 'Employee tidak ditemukan'
             ], 404);
         }
 
+        $user = User::where('username', $id)->with('role')->first();
+
         return view('pages.employee.editemployee', [
+            'menu' => 'Master Data',
+            'data' => $employee,
+            'user' => $user, // boleh null, blade harus aman
             'areas' => Area::all(),
             'departments' => Department::all(),
             'lines' => Line::all(),
-            'roles' => Role::all()
-        ])->with('data', $datas);
+            'roles' => Role::all(),
+        ]);
     }
+
+
 
     /**
      * Show the form for editing the specified resource.

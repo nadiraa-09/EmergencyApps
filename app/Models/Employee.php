@@ -45,6 +45,11 @@ class Employee extends Model
         return $this->belongsTo(Role::class, 'roleId', 'id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'badgeid', 'username');
+    }
+
     public function shift()
     {
         return $this->hasOne(Shift::class, 'badgeid', 'badgeid');

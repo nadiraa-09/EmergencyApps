@@ -16,7 +16,7 @@
                 <label for="role">Area</label>
                 <select class="form-control" name="areaId" id="areaId" required>
                     @foreach ($areas as $area)
-                    <option value="{{ $area->id }}" {{ $area->name == $data->area->name ? 'selected' : '' }}>
+                    <option value="{{ $area->id }}" {{ $area->id == $data->areaId ? 'selected' : '' }}>
                         {{ $area->name }}
                     </option>
                     @endforeach
@@ -28,8 +28,7 @@
                 <label for="departmentId">Department</label>
                 <select class="form-control" name="departmentId" id="departmentId" required>
                     @foreach ($departments as $department)
-                    <option value="{{ $department->id }}"
-                        {{ $department->name == $data->department->name ? 'selected' : '' }}>
+                    <option value="{{ $department->id }}" {{ $department->id == $data->departmentId ? 'selected' : '' }}>
                         {{ $department->name }}
                     </option>
                     @endforeach
@@ -39,8 +38,7 @@
                 <label for="lineId">Line</label>
                 <select class="form-control" name="lineId" id="lineId" required>
                     @foreach ($lines as $line)
-                    <option value="{{ $line->id }}"
-                        {{ $line->name == $data->line->name ? 'selected' : '' }}>
+                    <option value="{{ $line->id }}" {{ $line->id == $data->lineId ? 'selected' : '' }}>
                         {{ $line->name }}
                     </option>
                     @endforeach
@@ -50,17 +48,17 @@
                 <label for="roleId">Role</label>
                 <select class="form-control" name="roleId" id="roleId" required>
                     @foreach ($roles as $role)
-                    <option value="{{ $role->id }}"
-                        {{ $role->name == $data->role->name ? 'selected' : '' }}>
+                    <option value="{{ $role->id }}" {{ $role->id == optional($user?->role)->id ? 'selected' : '' }}>
                         {{ $role->name }}
                     </option>
+
                     @endforeach
                 </select>
+
+
             </div>
         </div>
     </div>
-
-
 
     <center>
         <button type="submit" class="btn btn-primary" name="editUser" id="editUser">Submit</button>

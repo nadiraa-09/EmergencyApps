@@ -8,6 +8,7 @@
                 <th>Area</th>
                 <th>Department</th>
                 <th>Line</th>
+                <th>Role</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -20,6 +21,7 @@
                 <td>{{ $data->area?->name ?? '-' }}</td>
                 <td>{{ $data->department?->name ?? '-' }}</td>
                 <td>{{ $data->line?->name ?? '-' }}</td>
+                <td>{{ $data->user->role?->name ?? '-' }}</td>
                 <td>
                     <a class="btn btn-warning btn-sm" onclick="getDetailEmployee('{{ $data->badgeid }}')">Edit</a>
                     <a class="btn btn-danger btn-sm" onclick="inActiveUser('{{ $data->badgeid }}')">Delete</a>

@@ -108,11 +108,16 @@
 
     const getReportList = () => {
         var table = $('#tblReportRequest').DataTable({
-            "responsive": true,
-            "lengthChange": false,
-            "autoWidth": false,
-            "buttons": ["copy", "excel", "pdf", "print"]
-        }).buttons().container().appendTo('#tblReportRequest_wrapper .col-md-6:eq(0)');
+            scrollX: true,
+            responsive: false,
+            lengthChange: false,
+            autoWidth: false,
+            buttons: ["copy", "excel", "pdf", "print"]
+        });
+
+        table.buttons().container()
+            .appendTo('#tblReportRequest_wrapper .col-md-6:eq(0)');
+
     }
 
     const filterReport = () => {

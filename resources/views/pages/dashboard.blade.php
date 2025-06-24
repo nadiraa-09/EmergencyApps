@@ -1,10 +1,9 @@
 @extends('layouts.header')
-@section('titlepage', 'Dashbaord')
 
 @section('container')
 <section class="content">
     <div class="container-fluid">
-        <h1>Selamat Datang {{ Auth::user()->name }}! <br>Halaman Dashboard</h1>
+        <h1>Selamat Datang {{ Auth::user()->name }}!</h1>
 
         <!-- Card Jumlah Karyawan per Shift -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 my-3">

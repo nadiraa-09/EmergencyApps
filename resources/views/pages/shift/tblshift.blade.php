@@ -5,10 +5,11 @@
                 <th>No</th>
                 <th>Badge ID</th>
                 <th>Name</th>
+                <th>Jenis Shift</th>
                 <th>Shift</th>
                 <th>Department</th>
                 <th>Line</th>
-                <th>Action</th>
+                <!-- <th>Action</th> -->
             </tr>
         </thead>
         <tbody>
@@ -18,11 +19,12 @@
                 <td>{{ $data->badgeid }}</td>
                 <td>{{ $data->employee->name ?? '-' }}</td>
                 <td>{{ $data->shift ?? '-' }}</td>
+                <td>{{ $data->curshift ?? '-' }}</td>
                 <td>{{ $data->employee->department?->name ?? '-' }}</td>
                 <td>{{ $data->employee->line?->name ?? '-' }}</td>
-                <td>
+                <!-- <td>
                     <a class="btn btn-warning btn-sm" onclick="getDetailEmployee('{{ $data->badgeid }}')">Edit</a>
-                </td>
+                </td> -->
             </tr>
             @endforeach
         </tbody>

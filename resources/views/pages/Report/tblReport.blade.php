@@ -35,11 +35,13 @@
                     $symbol = match($status) {
                     'Hadir' => 'H',
                     'Absen' => 'A',
+                    'Masuk setengah hari' => '½',
                     default => '-',
                     };
                     @endphp
                     <td>{{ $symbol }}</td>
                     @endfor
+
             </tr>
             @endforeach
         </tbody>

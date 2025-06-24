@@ -186,10 +186,12 @@
             url: "{{ route('employee-filter') }}",
             method: "GET",
             data: {
-                area: area,
+                area
             },
             success: function(response) {
                 $('.dashDataUser').html(response);
+
+                $('#tblUser').DataTable();
             },
             error: function(xhr) {
                 console.error("Filter error", xhr);

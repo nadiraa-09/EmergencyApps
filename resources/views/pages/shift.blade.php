@@ -13,16 +13,17 @@
                             Data Shift <span class="badge badge-info">{{ $totalEmployee }} Employees</span>
                         </h5>
                         <div class="card-tools">
-                            <a class="btn btn-primary" data-toggle="modal" data-target="#modalAddEmployee">Add Shift</a>
+                            <a class="btn btn-warning" href="{{ asset('format/shift-format.xlsx') }}" download>Format Excel</a>
+                            <a class="btn btn-primary me-2" data-toggle="modal" data-target="#modalAddEmployee">Add Shift</a>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="dashDataUser">
-                            <!-- this content will show here  -->
                             @include('pages.shift.tblshift')
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

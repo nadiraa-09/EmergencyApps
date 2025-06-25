@@ -9,6 +9,7 @@ use App\Models\Line;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Department;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
 class EmployeeController extends Controller
@@ -109,7 +110,7 @@ class EmployeeController extends Controller
             'areas' => Area::all(),
             'departments' => Department::all(),
             'lines' => Line::all(),
-            'roles' => Role::all(),
+            'roles' => Role::whereNotIn('id', [1, 2])->get(),
         ]);
     }
 
@@ -130,30 +131,47 @@ class EmployeeController extends Controller
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'areaId' => 'required|exists:areas,id',
-            'departmentId' => 'required|exists:departments,id',
-            'lineId' => 'required|exists:lines,id',
             'roleId' => 'required|exists:roles,id',
         ]);
 
-        $validatedData = Employee::where('badgeid', $id)->first();
+        $employee = Employee::where('badgeid', $id)->first();
 
-        if (!$validatedData) {
+        if (!$employee) {
             return redirect()->back()->withErrors(['badgeid' => 'Employee not found.']);
         }
 
-        $validatedData->name = $validated['name'];
-        $validatedData->areaId = $validated['areaId'];
-        $validatedData->departmentId = $validated['departmentId'];
-        $validatedData->lineId = $validated['lineId'];
-        $validatedData->roleId = $validated['roleId'];
-        $validatedData->updatedBy = Auth::user()->username;
-        $validatedData->updated_at = now();
-        $validatedData->save();
+        $user = User::where('username', $id)->first();
 
-        return redirect()->route('employee')->with('success', 'Success update');
+        if ($user) {
+            // Update user role jika user sudah ada
+            $user->roleId = $validated['roleId'];
+            $user->updatedBy = Auth::user()->username;
+            $user->updated_at = now();
+            $user->save();
+        } else {
+            // Buat user baru dengan data dari employee
+            try {
+                User::create([
+                    'username' => $employee->badgeid,
+                    'name' => $employee->name,
+                    'password' => Hash::make($employee->badgeid),
+                    'roleId' => $validated['roleId'],
+                    'departmentId' => $employee->departmentId,
+                    'inactive' => '1',
+                    'createdBy' => Auth::user()->username,
+                    'updatedBy' => Auth::user()->username,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Gagal membuat user baru: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('employee')->with('success', 'User berhasil diperbarui.');
     }
+
+
 
     /**
      * Remove the specified resource from storage.

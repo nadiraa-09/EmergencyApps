@@ -23,7 +23,7 @@
                 <td>{{ $data->line?->name ?? '-' }}</td>
                 <td>{{ $data->user->role?->name ?? '-' }}</td>
                 <td>
-                    <a class="btn btn-warning btn-sm" onclick="getDetailEmployee('{{ $data->badgeid }}')">Edit</a>
+                    <a class="btn btn-warning btn-sm" onclick="getDetailEmployee('{{ $data->badgeid }}')">Edit Role</a>
                     <a class="btn btn-danger btn-sm" onclick="inActiveUser('{{ $data->badgeid }}')">Delete</a>
                 </td>
             </tr>

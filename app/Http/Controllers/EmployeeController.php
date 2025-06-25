@@ -183,11 +183,21 @@ class EmployeeController extends Controller
 
     public function inactive(Request $request, string $id)
     {
-        $data = $request->all();
-        // dd($data);
-        $user = Employee::find($id);
-        $user->inactive = '0';
-        $user->save();
-        return redirect()->route('user')->with('success', 'success inactive');
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return redirect()->back()->withErrors(['badgeid' => 'Employee tidak ditemukan.']);
+        }
+
+        $employee->inactive = '0';
+        $employee->save();
+
+        $user = User::where('username', $id)->first();
+        if ($user) {
+            $user->inactive = '0';
+            $user->save();
+        }
+
+        return redirect()->route('user')->with('success', 'Berhasil menonaktifkan employee dan user.');
     }
 }

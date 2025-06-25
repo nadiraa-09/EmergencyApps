@@ -2,7 +2,7 @@
     @csrf
     @method('PATCH')
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" name="badgeid" id="badgeid" value="{{ $data->badgeid }}" class="form-control"

@@ -13,11 +13,15 @@
                     </div>
                     <div class="card-body">
                         <div class="row d-flex justify-content-center">
+
+                            @php
+                            $roleId = Auth::user()->roleId;
+                            @endphp
+                            @if(in_array($roleId, [1, 2]))
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="Filter">Filter Area</label>
-                                    <select name="Filter" id="filterArea" onchange="filterReport()"
-                                        class="form-control">
+                                    <select name="Filter" id="filterArea" onchange="filterReport()" class="form-control">
                                         <option value="All">All</option>
                                         @foreach ($areas as $area)
                                         <option value="{{ $area->id }}">{{ $area->name }}</option>
@@ -29,8 +33,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="Filter">Filter Department</label>
-                                    <select name="Filter" id="filterDepartment" onchange="filterReport()"
-                                        class="form-control">
+                                    <select name="Filter" id="filterDepartment" onchange="filterReport()" class="form-control">
                                         <option value="All">All</option>
                                         @foreach ($departments as $department)
                                         <option value="{{ $department->id }}">{{ $department->name }}</option>
@@ -38,6 +41,7 @@
                                     </select>
                                 </div>
                             </div>
+                            @endif
 
                             @php
                             $today = now();

@@ -26,17 +26,36 @@ class ReportController extends Controller
         $month = $today->month;
         $year = $today->year;
 
-        $query = Record::with([
-            'employee.area',
-            'employee.department',
-            'employee.line',
-            'employee.shift'
-        ])
-            ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
-            ->whereHas('employee');
+        $userAuth = Auth::user()->roleId;
+        if ($userAuth == 5) {
+            $departmentId = Auth::user()->departmentId;
+            $query = Record::with([
+                'employee.area',
+                'employee.department',
+                'employee.line',
+                'employee.shift'
+            ])
+                ->whereMonth('created_at', $month)
+                ->whereHas('employee', function ($q) use ($departmentId) {
+                    $q->where('departmentId', $departmentId);
+                })
+                ->whereYear('created_at', $year)
+                ->whereHas('employee');
 
-        $records = $query->get()->groupBy('badgeid');
+            $records = $query->get()->groupBy('badgeid');
+        } else {
+            $query = Record::with([
+                'employee.area',
+                'employee.department',
+                'employee.line',
+                'employee.shift'
+            ])
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year)
+                ->whereHas('employee');
+
+            $records = $query->get()->groupBy('badgeid');
+        }
 
         return view('pages.report', [
             'menu' => 'Report',

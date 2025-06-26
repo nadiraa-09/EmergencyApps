@@ -51,8 +51,8 @@ Route::prefix('pages')->group(function () {
     Route::patch('employeeinactive/{id}', [EmployeeController::class, 'inactive'])->middleware(['auth', 'MustAdmin'])->name('inactive-employee');
     Route::get('filteremployee', [EmployeeController::class, 'index'])->name('employee-filter');
 
-    Route::get('shift', [ShiftController::class, 'index'])->middleware(['auth', 'MustLeader'])->name('shift');
-    Route::post('shiftadd', [ShiftController::class, 'store'])->middleware(['auth', 'MustLeader'])->name('upload-shift');
+    Route::get('shift', [ShiftController::class, 'index'])->middleware(['auth', 'MustDepthead'])->name('shift');
+    Route::post('shiftadd', [ShiftController::class, 'store'])->middleware(['auth', 'MustDepthead'])->name('upload-shift');
 
     Route::get('emergency', [EmergencyController::class, 'index'])->middleware(['auth', 'MustLeader'])->name('emergency');
     Route::post('save-emergency', [EmergencyController::class, 'store'])->middleware(['auth', 'MustLeader'])->name('save-emergency');

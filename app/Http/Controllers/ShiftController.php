@@ -20,12 +20,28 @@ class ShiftController extends Controller
      */
     public function index()
     {
-        $datas = Shift::where('inactive', '1')
-            ->orderBy('badgeid', 'asc')
-            ->latest()
-            ->paginate(1000000);
+        $userAuth = Auth::user()->roleId;
+        if ($userAuth == 5) {
+            $departmentId = Auth::user()->departmentId;
 
-        $totalEmployee = $datas->unique('badgeid')->count();
+            $datas = Shift::with('employee')
+                ->where('inactive', '1')
+                ->whereHas('employee', function ($q) use ($departmentId) {
+                    $q->where('departmentId', $departmentId);
+                })
+                ->orderBy('badgeid', 'asc')
+                ->latest()
+                ->paginate(1000000);
+
+            $totalEmployee = $datas->unique('badgeid')->count();
+        } else {
+            $datas = Shift::where('inactive', '1')
+                ->orderBy('badgeid', 'asc')
+                ->latest()
+                ->paginate(1000000);
+
+            $totalEmployee = $datas->unique('badgeid')->count();
+        }
 
         return view('pages.shift', [
             'menu' => 'Shift',

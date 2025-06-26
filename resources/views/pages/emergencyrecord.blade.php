@@ -410,7 +410,6 @@
         });
     }
 
-
     function filterReport() {
         const shift = $('#filterShift').val();
         const line = $('#filterLine').val();
@@ -436,8 +435,15 @@
                 $('.dashDataEvacuation').html(response.evacuation);
 
                 setTimeout(() => {
-                    $('#tbldailyattendace').DataTable();
-                    $('#tblEvacuation').DataTable();
+                    const dataTableDaily = $('#tbldailyattendace').DataTable();
+                    const dataTableEvac = $('#tblEvacuation').DataTable();
+
+                    dataTableDaily.on('draw', function() {
+                        toggleEmergencyColumns(shift);
+                    });
+                    dataTableEvac.on('draw', function() {
+                        toggleEmergencyColumns(shift);
+                    });
 
                     document.querySelectorAll("#tbldailyattendace .form-check-input").forEach(cb => {
                         cb.onchange = () => {
@@ -458,8 +464,9 @@
                         }
                     });
 
-                    toggleEmergencyColumns(shift);
+                    toggleEmergencyColumns(shift); // Initial call
                 }, 50);
+
             },
             error: function(xhr) {
                 console.error("Filter error", xhr);

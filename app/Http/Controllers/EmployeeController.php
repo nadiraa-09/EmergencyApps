@@ -157,6 +157,7 @@ class EmployeeController extends Controller
                     'password' => Hash::make($employee->badgeid),
                     'roleId' => $validated['roleId'],
                     'departmentId' => $employee->departmentId,
+                    'areaId' => $employee->areaId,
                     'inactive' => '1',
                     'createdBy' => Auth::user()->username,
                     'updatedBy' => Auth::user()->username,

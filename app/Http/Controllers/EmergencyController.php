@@ -28,7 +28,16 @@ class EmergencyController extends Controller
         $shift = $request->query('shift', 'All');
         $line = $request->query('line', 'All');
 
-        $query = Employee::with(['shift', 'line'])->where('inactive', '1');
+        $userAuth = Auth::user()->roleId;
+        if ($userAuth == 3 || $userAuth == 4) {
+            // If the user is a supervisor or manager, filter by their department
+            $areaId = Auth::user()->areaId;
+            $query = Employee::with(['shift', 'line'])
+                ->where('inactive', '1')
+                ->where('areaId', $areaId);
+        } else {
+            $query = Employee::with(['shift', 'line'])->where('inactive', '1');
+        }
 
         if ($shift !== 'All') {
             $query->whereHas('shift', function ($q) use ($shift) {

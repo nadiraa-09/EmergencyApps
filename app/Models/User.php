@@ -26,6 +26,7 @@ class User extends Authenticatable
         'inactive',
         'roleId',
         'departmentId',
+        'areaId',
         'createdBy',
         'updatedBy'
     ];

@@ -145,8 +145,8 @@
     });
 
     $(document).ready(() => {
-        $('#tbldailyattendace').DataTable();
-        $('#tblEvacuation').DataTable();
+        // $('#tbldailyattendace').DataTable();
+        // $('#tblEvacuation').DataTable();
 
         $('#filterShift').val('All');
         $('#filterLine').val('All');
@@ -435,9 +435,12 @@
                 $('.dashDataEvacuation').html(response.evacuation);
 
                 setTimeout(() => {
-                    const dataTableDaily = $('#tbldailyattendace').DataTable();
-                    const dataTableEvac = $('#tblEvacuation').DataTable();
-
+                    const dataTableDaily = $('#tbldailyattendace').DataTable({
+                        pageLength: 20,
+                    });
+                    const dataTableEvac = $('#tblEvacuation').DataTable({
+                        pageLength: 20,
+                    });
                     dataTableDaily.on('draw', function() {
                         toggleEmergencyColumns(shift);
                     });

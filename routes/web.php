@@ -34,32 +34,31 @@ Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth');
 
 Route::prefix('pages')->group(function () {
     Route::get('/', [DashboardController::class, 'index']);
-    Route::get('dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
-    Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+    Route::get('dashboard', [DashboardController::class, 'index'])->middleware('auth', 'MustAdmin')->name('dashboard');
+    Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->middleware('auth', 'MustAdmin')->name('dashboard.filter');
 
+    Route::get('user', [UserController::class, 'index'])->middleware(['auth', 'MustAdmin'])->name('user');
+    Route::post('useradd', [UserController::class, 'store'])->middleware(['auth', 'MustAdmin'])->name('add-user');
+    Route::post('userdetail', [UserController::class, 'show'])->middleware(['auth', 'MustAdmin'])->name('detail-user');
+    Route::patch('user/{id}', [UserController::class, 'update'])->middleware(['auth', 'MustAdmin'])->name('update-user');
+    Route::patch('userinactive/{id}', [UserController::class, 'inactive'])->middleware(['auth', 'MustAdmin'])->name('inactive-user');
+    Route::patch('update-password/{id}', [UserController::class, 'updatePassword'])->middleware(['auth', 'MustAdmin'])->name('update.password');
 
-    Route::get('user', [UserController::class, 'index'])->middleware(['auth', 'mustAdmin'])->name('user');
-    Route::post('useradd', [UserController::class, 'store'])->middleware(['auth', 'mustAdmin'])->name('add-user');
-    Route::post('userdetail', [UserController::class, 'show'])->middleware(['auth', 'mustAdmin'])->name('detail-user');
-    Route::patch('user/{id}', [UserController::class, 'update'])->middleware(['auth', 'mustAdmin'])->name('update-user');
-    Route::patch('userinactive/{id}', [UserController::class, 'inactive'])->middleware(['auth', 'mustAdmin'])->name('inactive-user');
-    Route::patch('update-password/{id}', [UserController::class, 'updatePassword'])->middleware(['auth', 'mustAdmin'])->name('update.password');
-
-    Route::get('employee', [EmployeeController::class, 'index'])->middleware(['auth', 'mustAdmin'])->name('employee');
-    Route::post('employeeadd', [EmployeeController::class, 'store'])->middleware(['auth', 'mustAdmin'])->name('add-employee');
-    Route::post('employeedetail', [EmployeeController::class, 'show'])->middleware(['auth', 'mustAdmin'])->name('detail-employee');
-    Route::patch('employee/{id}', [EmployeeController::class, 'update'])->middleware(['auth', 'mustAdmin'])->name('update-employee');
-    Route::patch('employeeinactive/{id}', [EmployeeController::class, 'inactive'])->middleware(['auth', 'mustAdmin'])->name('inactive-employee');
+    Route::get('employee', [EmployeeController::class, 'index'])->middleware(['auth', 'MustAdmin'])->name('employee');
+    Route::post('employeeadd', [EmployeeController::class, 'store'])->middleware(['auth', 'MustAdmin'])->name('add-employee');
+    Route::post('employeedetail', [EmployeeController::class, 'show'])->middleware(['auth', 'MustAdmin'])->name('detail-employee');
+    Route::patch('employee/{id}', [EmployeeController::class, 'update'])->middleware(['auth', 'MustAdmin'])->name('update-employee');
+    Route::patch('employeeinactive/{id}', [EmployeeController::class, 'inactive'])->middleware(['auth', 'MustAdmin'])->name('inactive-employee');
     Route::get('filteremployee', [EmployeeController::class, 'index'])->name('employee-filter');
 
-    Route::get('shift', [ShiftController::class, 'index'])->middleware(['auth', 'mustAdmin'])->name('shift');
-    Route::post('shiftadd', [ShiftController::class, 'store'])->middleware(['auth', 'mustAdmin'])->name('upload-shift');
+    Route::get('shift', [ShiftController::class, 'index'])->middleware(['auth', 'MustLeader'])->name('shift');
+    Route::post('shiftadd', [ShiftController::class, 'store'])->middleware(['auth', 'MustLeader'])->name('upload-shift');
 
-    Route::get('emergency', [EmergencyController::class, 'index'])->middleware(['auth', 'mustAdmin'])->name('emergency');
-    Route::post('save-emergency', [EmergencyController::class, 'store'])->middleware(['auth', 'mustAdmin'])->name('save-emergency');
-    Route::post('save-evacuation', [EmergencyController::class, 'storeEvacuation'])->middleware(['auth', 'mustAdmin'])->name('save-evacuation');
-    Route::get('filteremergency', [EmergencyController::class, 'index'])->name('emergency-filter');
+    Route::get('emergency', [EmergencyController::class, 'index'])->middleware(['auth', 'MustLeader'])->name('emergency');
+    Route::post('save-emergency', [EmergencyController::class, 'store'])->middleware(['auth', 'MustLeader'])->name('save-emergency');
+    Route::post('save-evacuation', [EmergencyController::class, 'storeEvacuation'])->middleware(['auth', 'MustLeader'])->name('save-evacuation');
+    Route::get('filteremergency', [EmergencyController::class, 'index'])->middleware(['auth', 'MustLeader'])->name('emergency-filter');
 
-    Route::get('report', [ReportController::class, 'index'])->middleware('auth')->name('report');
-    Route::post('report', [ReportController::class, 'filter'])->middleware('auth')->name('reportfilter');
+    Route::get('report', [ReportController::class, 'index'])->middleware('auth', 'MustDepthead')->name('report');
+    Route::post('report', [ReportController::class, 'filter'])->middleware('auth', 'MustDepthead')->name('reportfilter');
 });

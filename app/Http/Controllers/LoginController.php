@@ -25,6 +25,17 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
+            $roleId = Auth::user()->roleId;
+
+            if (in_array($roleId, [3, 4])) {
+                return redirect('/pages/emergency')->with('success', 'Login Berhasil!');
+            }
+
+            if ($roleId == 5) {
+                return redirect('/pages/shift')->with('success', 'Login Berhasil!');
+            }
+
             return redirect()->intended('/pages/dashboard')->with('success', 'Login Berhasil!');
         }
 

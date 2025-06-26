@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class MustAdmin
+class MustLeader
 {
     /**
      * Handle an incoming request.
@@ -16,8 +16,7 @@ class MustAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        //can access middleware if role = admin
-        if (!in_array(Auth::user()->roleId, [1, 2])) {
+        if (!in_array(Auth::user()->roleId, [1, 2, 3, 4])) {
             abort(404);
         }
 

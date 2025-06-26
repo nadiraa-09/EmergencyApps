@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class MustHeadUser
+class MustDepthead
 {
     /**
      * Handle an incoming request.
@@ -16,9 +16,10 @@ class MustHeadUser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->roleId === 5) {
+        if (!in_array(Auth::user()->roleId, [1, 2, 5])) {
             abort(404);
         }
+
         return $next($request);
     }
 }

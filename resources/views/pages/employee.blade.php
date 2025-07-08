@@ -10,9 +10,9 @@
                 <div class="card shadow">
                     <div class="card-header">
                         <div class="card-title">Data Employee</div>
-                        <div class="card-tools">
+                        <!-- <div class="card-tools">
                             <a class="btn btn-primary" data-toggle="modal" data-target="#modalAddEmployee">Add Employee</a>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="card-body">

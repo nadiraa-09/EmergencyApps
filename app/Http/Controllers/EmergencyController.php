@@ -51,12 +51,17 @@ class EmergencyController extends Controller
 
         $datas = $query->orderBy('badgeid', 'asc')->latest()->paginate(1000000);
 
+        $totalEmployeeFiltered = $datas->unique('badgeid')->count(); // Tambahkan ini
+
         if ($request->ajax()) {
             return response()->json([
                 'daily' => view('pages.emergency.tbldailyattendace', compact('datas'))->render(),
-                'evacuation' => view('pages.emergency.tblevacuation', compact('datas'))->render()
+                'evacuation' => view('pages.emergency.tblevacuation', compact('datas'))->render(),
+                'totalEmployeeFiltered' => $totalEmployeeFiltered, // Tambahkan ini
             ]);
         }
+
+        $totalEmployee = $datas->unique('badgeid')->count();
 
         return view('pages.emergencyrecord', [
             'menu' => 'Emergency Record',
@@ -68,6 +73,7 @@ class EmergencyController extends Controller
             'evacuations' => Evacuation::all(),
             'departments' => Department::all(),
             'datas' => $datas,
+            'totalEmployee' => $totalEmployee,
         ]);
     }
 

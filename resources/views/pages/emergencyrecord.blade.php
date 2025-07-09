@@ -26,6 +26,7 @@
                             </ul>
                         </div>
 
+
                         <div class="row p-2">
                             <!-- Filter Shift -->
                             <div class="col-md-12">
@@ -45,11 +46,23 @@
                                     <label for="filterLine">Pilih Line</label>
                                     <select name="filterLine" id="filterLine" onchange="filterReport()" class="form-control">
                                         <option value="All">All</option>
-                                        <option value="All">All</option>
                                         @foreach ($lines as $line)
                                         <option value="{{ $line->id }}">{{ $line->name }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="d-flex flex-column align-items-center justify-content-center mb-3">
+                                    <div class="bg-light rounded shadow-sm px-4 py-2 text-center" style="font-size: 0.92rem; line-height: 1.3; max-width: 320px;">
+
+                                        <span class="text-muted" style="font-size: 0.89rem;">
+                                            <i class="far fa-calendar-alt me-1"></i> {{ date('d-m-Y H:i:s') }}
+                                        </span>
+                                        <br>
+
+                                        <span class="fw-semibold text-primary" id="totalEmployeeText">
+                                            <i class="fas fa-users me-1"></i> Total Karyawan: {{ $totalEmployee }} orang
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -410,6 +423,74 @@
         });
     }
 
+    // function filterReport() {
+    //     const shift = $('#filterShift').val();
+    //     const line = $('#filterLine').val();
+
+    //     toggleEmergencyColumns(shift);
+
+    //     $.ajax({
+    //         url: "{{ route('emergency-filter') }}",
+    //         method: "GET",
+    //         data: {
+    //             shift,
+    //             line
+    //         },
+    //         success: function(response) {
+    //             if ($.fn.DataTable.isDataTable('#tbldailyattendace')) {
+    //                 $('#tbldailyattendace').DataTable().destroy();
+    //             }
+    //             if ($.fn.DataTable.isDataTable('#tblEvacuation')) {
+    //                 $('#tblEvacuation').DataTable().destroy();
+    //             }
+
+    //             $('.dashDataLeave').html(response.daily);
+    //             $('.dashDataEvacuation').html(response.evacuation);
+
+    //             setTimeout(() => {
+    //                 const dataTableDaily = $('#tbldailyattendace').DataTable({
+    //                     pageLength: 20,
+    //                 });
+    //                 const dataTableEvac = $('#tblEvacuation').DataTable({
+    //                     pageLength: 20,
+    //                 });
+    //                 dataTableDaily.on('draw', function() {
+    //                     toggleEmergencyColumns(shift);
+    //                 });
+    //                 dataTableEvac.on('draw', function() {
+    //                     toggleEmergencyColumns(shift);
+    //                 });
+
+    //                 document.querySelectorAll("#tbldailyattendace .form-check-input").forEach(cb => {
+    //                     cb.onchange = () => {
+    //                         const badgeid = cb.dataset.badgeid;
+    //                         toggleActionEmergency(badgeid);
+    //                     };
+    //                 });
+
+    //                 const absenStatus = JSON.parse(sessionStorage.getItem("emergencyStatus") || "{}");
+    //                 Object.entries(absenStatus).forEach(([badgeid, checked]) => {
+    //                     const checkbox = document.getElementById(`subscribe_${badgeid}`);
+    //                     const editBtn = document.getElementById(`editBtn_${badgeid}`);
+    //                     if (checkbox) {
+    //                         checkbox.checked = checked;
+    //                         if (editBtn) {
+    //                             editBtn.classList.toggle("d-none", !checked);
+    //                         }
+    //                     }
+    //                 });
+
+    //                 toggleEmergencyColumns(shift); // Initial call
+    //             }, 50);
+
+    //         },
+    //         error: function(xhr) {
+    //             console.error("Filter error", xhr);
+    //             Swal.fire("Error", "Failed to load filtered data.", "error");
+    //         }
+    //     });
+    // }
+
     function filterReport() {
         const shift = $('#filterShift').val();
         const line = $('#filterLine').val();
@@ -433,6 +514,13 @@
 
                 $('.dashDataLeave').html(response.daily);
                 $('.dashDataEvacuation').html(response.evacuation);
+
+                // Update total karyawan sesuai filter
+                if (response.totalEmployeeFiltered !== undefined) {
+                    $('#totalEmployeeText').html(
+                        `<i class="fas fa-users me-1"></i> Total Karyawan: ${response.totalEmployeeFiltered} orang`
+                    );
+                }
 
                 setTimeout(() => {
                     const dataTableDaily = $('#tbldailyattendace').DataTable({

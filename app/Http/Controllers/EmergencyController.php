@@ -51,17 +51,24 @@ class EmergencyController extends Controller
 
         $datas = $query->orderBy('badgeid', 'asc')->latest()->paginate(1000000);
 
-        $totalEmployeeFiltered = $datas->unique('badgeid')->count(); // Tambahkan ini
+        // Hitung total karyawan, hadir, dan tidak hadir
+        $totalEmployee = $datas->unique('badgeid')->count();
+        $totalEmployeeHadir = $datas->filter(function ($data) {
+            return ($data->record?->status ?? '') === 'Hadir';
+        })->count();
+        $totalEmployeeTidakHadir = $datas->filter(function ($data) {
+            return ($data->record?->status ?? '') === 'Absen';
+        })->count();
 
         if ($request->ajax()) {
             return response()->json([
                 'daily' => view('pages.emergency.tbldailyattendace', compact('datas'))->render(),
                 'evacuation' => view('pages.emergency.tblevacuation', compact('datas'))->render(),
-                'totalEmployeeFiltered' => $totalEmployeeFiltered, // Tambahkan ini
+                'totalEmployeeFiltered' => $totalEmployee,
+                'totalEmployeeHadir' => $totalEmployeeHadir,
+                'totalEmployeeTidakHadir' => $totalEmployeeTidakHadir,
             ]);
         }
-
-        $totalEmployee = $datas->unique('badgeid')->count();
 
         return view('pages.emergencyrecord', [
             'menu' => 'Emergency Record',
@@ -74,6 +81,8 @@ class EmergencyController extends Controller
             'departments' => Department::all(),
             'datas' => $datas,
             'totalEmployee' => $totalEmployee,
+            'totalEmployeeHadir' => $totalEmployeeHadir,
+            'totalEmployeeTidakHadir' => $totalEmployeeTidakHadir,
         ]);
     }
 

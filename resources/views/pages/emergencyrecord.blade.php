@@ -40,7 +40,11 @@
                                     </select>
                                 </div>
 
+                                @php
+                                $userDeptId = Auth::user()->departmentId ?? null;
+                                @endphp
                                 <!-- Filter Line -->
+                                @if($userDeptId == 13 || $userDeptId == 14)
                                 <div class="form-group">
                                     <label for="filterLine">Pilih Line</label>
                                     <select name="filterLine" id="filterLine" onchange="filterReport()" class="form-control">
@@ -50,11 +54,13 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                @endif
+
                                 <div class="d-flex flex-column align-items-center justify-content-center mb-3">
                                     <div class="bg-light rounded shadow-sm px-4 py-2 text-center" style="font-size: 0.92rem; line-height: 1.3; max-width: 320px;">
-
                                         <span class="text-muted" style="font-size: 0.89rem;">
-                                            <i class="far fa-calendar-alt me-1"></i> <span id="liveDateTime">{{ date('d-m-Y H:i:s') }}</span>
+                                            <i class="far fa-calendar-alt me-1"></i>
+                                            <span id="liveDateTime">{{ date('d-m-Y H:i:s') }}</span>
                                             <script>
                                                 function updateLiveDateTime() {
                                                     const now = new Date();
@@ -72,10 +78,7 @@
                                             </script>
                                         </span>
                                         <br>
-
-                                        <span class="fw-semibold text-primary" id="totalEmployeeText">
-                                            <i class="fas fa-users me-1"></i> Total Karyawan: {{ $totalEmployee }} orang
-                                        </span>
+                                        <span class="fw-semibold text-primary" id="totalEmployeeText" style="display: flex; flex-direction: column; align-items: center;"></span>
                                     </div>
                                     <small class="text-danger" id="attendanceWarning">
                                         *Ceklis data karyawan yang tidak hadir
@@ -184,7 +187,12 @@
         filterReport();
         $('a[data-toggle="pill"]').on('shown.bs.tab', function(e) {
             const target = $(e.target).attr("href");
+            const $card = $('.card.card-outline');
+            const $evacTab = $('#another-tab');
             if (target === "#another") {
+                $card.removeClass('card-primary').addClass('card-danger');
+                $evacTab.addClass('bg-danger text-white').removeClass('text-danger');
+                $('#attendanceWarning').text('*Ceklis data karyawan yang hadir');
                 setTimeout(() => {
                     if ($.fn.DataTable.isDataTable('#tblEvacuation')) {
                         $('#tblEvacuation').DataTable().destroy();
@@ -194,8 +202,10 @@
                     });
                     toggleEmergencyColumns($('#filterShift').val());
                 }, 50);
-                $('#attendanceWarning').text('*Ceklis data karyawan yang hadir');
             } else if (target === "#emergency") {
+                $card.removeClass('card-danger').addClass('card-primary');
+                $evacTab.removeClass('bg-danger text-white');
+                $('#attendanceWarning').text('*Ceklis data karyawan yang tidak hadir');
                 setTimeout(() => {
                     if ($.fn.DataTable.isDataTable('#tbldailyattendace')) {
                         $('#tbldailyattendace').DataTable().destroy();
@@ -205,7 +215,6 @@
                     });
                     toggleEmergencyColumns($('#filterShift').val());
                 }, 50);
-                $('#attendanceWarning').text('*Ceklis data karyawan yang tidak hadir');
             }
         });
     });
@@ -561,7 +570,16 @@
                 // Update total karyawan sesuai filter
                 if (response.totalEmployeeFiltered !== undefined) {
                     $('#totalEmployeeText').html(
-                        `<i class="fas fa-users me-1"></i> Total Karyawan: ${response.totalEmployeeFiltered} orang`
+                        `<span>
+                            <i class="fas fa-users me-1"></i>
+                            Total: ${response.totalEmployeeFiltered} Karyawan
+                        </span>
+                        <span style="font-size: 0.92em; color: #28a745;">
+                            Hadir: ${response.totalEmployeeHadir ?? 0} Karyawan
+                        </span>
+                        <span style="font-size: 0.92em; color: #dcb535;">
+                            Tidak Hadir: ${response.totalEmployeeTidakHadir ?? 0} Karyawan
+                        </span>`
                     );
                 }
 

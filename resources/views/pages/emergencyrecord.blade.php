@@ -15,17 +15,16 @@
                             <ul class="nav nav-pills" id="custom-tabs" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="emergency-tab" data-toggle="pill" href="#emergency" role="tab">
-                                        Daily Attendance
+                                        Kehadiran Harian
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" id="another-tab" data-toggle="pill" href="#another" role="tab">
-                                        Evacuation
+                                        Evakuasi
                                     </a>
                                 </li>
                             </ul>
                         </div>
-
 
                         <div class="row p-2">
                             <!-- Filter Shift -->
@@ -78,6 +77,9 @@
                                             <i class="fas fa-users me-1"></i> Total Karyawan: {{ $totalEmployee }} orang
                                         </span>
                                     </div>
+                                    <small class="text-danger" id="attendanceWarning">
+                                        *Ceklis data karyawan yang tidak hadir
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -192,8 +194,8 @@
                     });
                     toggleEmergencyColumns($('#filterShift').val());
                 }, 50);
-            }
-            if (target === "#emergency") {
+                $('#attendanceWarning').text('*Ceklis data karyawan yang hadir');
+            } else if (target === "#emergency") {
                 setTimeout(() => {
                     if ($.fn.DataTable.isDataTable('#tbldailyattendace')) {
                         $('#tbldailyattendace').DataTable().destroy();
@@ -203,6 +205,7 @@
                     });
                     toggleEmergencyColumns($('#filterShift').val());
                 }, 50);
+                $('#attendanceWarning').text('*Ceklis data karyawan yang tidak hadir');
             }
         });
     });

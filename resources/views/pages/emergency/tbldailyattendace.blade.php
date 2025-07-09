@@ -2,7 +2,7 @@
     <div class="col-md-12 d-flex justify-content-center mb-3">
         <div id="saveChecklistDaily" class="text-center">
             <button class="btn btn-success" onclick="saveChecklistDaily()">
-                <i class="fas fa-save"></i> Save Daily Attendance
+                <i class="fas fa-save"></i> Simpan Data Kehadiran Harian
             </button>
         </div>
     </div>
@@ -18,12 +18,12 @@
             <tr>
                 <th class="d-none">No</th>
                 <th>Badge ID</th>
-                <th>Name</th>
+                <th>Nama</th>
                 <th class="col-shift">Shift</th>
                 @if($showStatusKehadiran)
                 <th>Status Kehadiran</th>
-                @endif <th class="col-action">Action</th>
-                <th class="col-remark">Remark</th>
+                @endif <th class="col-action">Aksi</th>
+                <th class="col-remark">Keterangan</th>
             </tr>
         </thead>
         <tbody>
@@ -74,7 +74,7 @@
                         {{ $data->record->remark ?? '-' }}
                     </div>
                     <a class="btn btn-warning btn-sm mt-1" onclick="addremarkdaily('{{ $data->badgeid }}')">
-                        Add Remark
+                        Tambah Keterangan
                     </a>
                 </td>
             </tr>

@@ -2,7 +2,7 @@
     <div class="col-md-12 d-flex justify-content-center mb-3">
         <div id="saveChecklistEvacuation" class="text-center">
             <button class="btn btn-success" onclick="saveChecklistEvacuation()">
-                <i class="fas fa-save"></i> Save Evacuation
+                <i class="fas fa-save"></i> Simpan Data Evakuasi
             </button>
         </div>
     </div>
@@ -18,14 +18,14 @@
             <tr>
                 <th class="d-none">No</th>
                 <th>Badge ID</th>
-                <th>Name</th>
+                <th>Nama</th>
                 <th class="col-shift">Shift</th>
                 <th>Status Kehadiran</th>
                 @if($showStatusKehadiran)
                 <th>Absensi Evakuasi</th>
                 @endif
-                <th class="col-action">Action</th>
-                <th class="col-remark">Remark</th>
+                <th class="col-action">Aksi</th>
+                <th class="col-remark">Keterangan</th>
             </tr>
         </thead>
         <tbody>
@@ -88,7 +88,7 @@
                     </div>
                     <a class="btn btn-warning btn-sm mt-1"
                         onclick="addremarkevacuation('{{ $data->badgeid }}')">
-                        Add Remark
+                        Tambah Keterangan
                     </a>
                 </td>
             </tr>

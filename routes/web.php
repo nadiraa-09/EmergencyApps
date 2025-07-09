@@ -30,7 +30,7 @@ Route::post('/recordout', [RecordController::class, 'storeout'])->name('recordou
 
 Route::get('/login', [LoginController::class, 'index'])->middleware('guest')->name('login');
 Route::post('/login', [LoginController::class, 'authenticate']);
-Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth');
+Route::get('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::prefix('pages')->group(function () {
     Route::get('/', [DashboardController::class, 'index']);

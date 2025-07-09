@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Emergency Apps | @yield('titlepage')</title>
+    <title>Evacuation Attendance Record</title>
 
     {{-- <link rel=”icon” href=yokogawa.ico”> --}}
     <link rel="shortcut icon" href="{{ asset('yokogawa.ico') }}">
@@ -21,7 +21,6 @@
     <link rel="stylesheet" href="{{ asset('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
-
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -39,9 +38,12 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="index.php" class="brand-link">
-                <img src="{{ asset('dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-                <span class="brand-text font-weight-light">Emergency Apps</span>
+            <a href="#" class="brand-link d-flex flex-column align-items-start py-2">
+
+                <span class="brand-text font-weight-light text-wrap d-block"
+                    style="font-size: 14; line-height: 1.2; white-space: normal;">
+                    Evacuation Attendance Record
+                </span>
             </a>
 
             <!-- Sidebar -->
@@ -127,14 +129,13 @@
             <script src="{{ asset('/dist/js/general.js') }}"></script>
             <script src="{{ asset('/dist/js/toast.js') }}"></script>
 
-
             @yield('scripts')
         </div>
         <footer class="main-footer">
-            <strong>Yokogawa Manufacturing Batam &copy; 2023</strong>
+            <strong>Yokogawa Manufacturing Batam &copy; 2025</strong>
             All rights reserved.
             <div class="float-right d-none d-sm-inline-block">
-                <b>Version</b> 1.0.0
+                <b>Version</b> 0.0.0
             </div>
         </footer>
     </div>

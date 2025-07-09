@@ -55,7 +55,22 @@
                                     <div class="bg-light rounded shadow-sm px-4 py-2 text-center" style="font-size: 0.92rem; line-height: 1.3; max-width: 320px;">
 
                                         <span class="text-muted" style="font-size: 0.89rem;">
-                                            <i class="far fa-calendar-alt me-1"></i> {{ date('d-m-Y H:i:s') }}
+                                            <i class="far fa-calendar-alt me-1"></i> <span id="liveDateTime">{{ date('d-m-Y H:i:s') }}</span>
+                                            <script>
+                                                function updateLiveDateTime() {
+                                                    const now = new Date();
+                                                    const pad = n => n.toString().padStart(2, '0');
+                                                    const formatted =
+                                                        pad(now.getDate()) + '-' +
+                                                        pad(now.getMonth() + 1) + '-' +
+                                                        now.getFullYear() + ' ' +
+                                                        pad(now.getHours()) + ':' +
+                                                        pad(now.getMinutes()) + ':' +
+                                                        pad(now.getSeconds());
+                                                    document.getElementById('liveDateTime').textContent = formatted;
+                                                }
+                                                setInterval(updateLiveDateTime, 1000);
+                                            </script>
                                         </span>
                                         <br>
 
@@ -165,6 +180,31 @@
         $('#filterLine').val('All');
 
         filterReport();
+        $('a[data-toggle="pill"]').on('shown.bs.tab', function(e) {
+            const target = $(e.target).attr("href");
+            if (target === "#another") {
+                setTimeout(() => {
+                    if ($.fn.DataTable.isDataTable('#tblEvacuation')) {
+                        $('#tblEvacuation').DataTable().destroy();
+                    }
+                    $('#tblEvacuation').DataTable({
+                        pageLength: 20
+                    });
+                    toggleEmergencyColumns($('#filterShift').val());
+                }, 50);
+            }
+            if (target === "#emergency") {
+                setTimeout(() => {
+                    if ($.fn.DataTable.isDataTable('#tbldailyattendace')) {
+                        $('#tbldailyattendace').DataTable().destroy();
+                    }
+                    $('#tbldailyattendace').DataTable({
+                        pageLength: 20
+                    });
+                    toggleEmergencyColumns($('#filterShift').val());
+                }, 50);
+            }
+        });
     });
 
     window.addEventListener('load', function() {

@@ -9,15 +9,20 @@
 </div>
 
 <div class="table-responsive">
+    @php
+    $isAllShift = request('shift', 'All') === 'All';
+    $showStatusKehadiran = $isAllShift || $datas->filter(fn($data) => ($data->record?->status ?? '-') !== '-')->count() > 0;
+    @endphp
     <table id="tbldailyattendace" class="table table-bordered table-striped table-hover align-middle text-center">
         <thead class="table-light">
             <tr>
-                <th>No</th>
+                <th class="d-none">No</th>
                 <th>Badge ID</th>
                 <th>Name</th>
                 <th class="col-shift">Shift</th>
+                @if($showStatusKehadiran)
                 <th>Status Kehadiran</th>
-                <th class="col-action">Action</th>
+                @endif <th class="col-action">Action</th>
                 <th class="col-remark">Remark</th>
             </tr>
         </thead>
@@ -33,16 +38,18 @@
             };
             @endphp
             <tr>
-                <td>{{ $loop->iteration }}</td>
+                <td class="d-none">{{ $loop->iteration }}</td>
                 <td>{{ $data->badgeid }}</td>
                 <td>{{ $data->name }}</td>
                 <td class="col-shift">{{ $data->shift->curshift }}</td>
+                @if($showStatusKehadiran)
                 <td>
                     <span class="badge {{ $badgeClass }}">
-                        {{ $status ?? '-' }}
+                        {{ $status }}
                     </span>
                     <div class="small text-muted">{{ $data->record->remark ?? '' }}</div>
                 </td>
+                @endif
                 <td class="col-action">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input"

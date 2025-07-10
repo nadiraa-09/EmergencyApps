@@ -33,7 +33,7 @@ class LoginController extends Controller
             }
 
             if ($roleId == 5) {
-                return redirect('/pages/shift')->with('success', 'Login Berhasil!');
+                return redirect('/pages/shift');
             }
 
             return redirect()->intended('/pages/dashboard')->with('success', 'Login Berhasil!');

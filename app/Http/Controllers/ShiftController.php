@@ -44,7 +44,7 @@ class ShiftController extends Controller
         }
 
         return view('pages.shift', [
-            'menu' => 'Shift',
+            'menu' => 'Shift Employee',
             'employees' => Employee::all(),
             'datas' => $datas,
             'totalEmployee' => $totalEmployee,
@@ -82,11 +82,12 @@ class ShiftController extends Controller
             $firstDeptName = trim($data[1][2] ?? '');
             $department = Department::firstOrCreate(['name' => $firstDeptName]);
 
-            // Step 1: Mark all employees in department as inactive = 0
             Employee::where('departmentId', $department->id)->update(['inactive' => '0']);
 
-            foreach ($data as $row) {
-                // Skip invalid or empty rows
+            $errorRows = [];
+            $successCount = 0;
+
+            foreach ($data as $i => $row) {
                 if (count($row) < 3 || empty(trim($row[0]))) {
                     continue;
                 }
@@ -99,7 +100,19 @@ class ShiftController extends Controller
                 $shift = trim($row[5] ?? '');
                 $curshift = trim($row[6] ?? '');
 
-                // Ensure correct model used
+                $rowErrors = [];
+                if (empty($badgeid)) $rowErrors[] = 'Badge ID kosong';
+                if (empty($name)) $rowErrors[] = 'Nama kosong';
+                if (empty($deptName)) $rowErrors[] = 'Department kosong';
+                if (empty($areaName)) $rowErrors[] = 'Area kosong';
+                if (empty($shift)) $rowErrors[] = 'Shift kosong';
+                if (empty($curshift)) $rowErrors[] = 'Current Shift kosong';
+
+                if (!empty($rowErrors)) {
+                    $errorRows[] = 'Baris ' . ($i + 2) . ': ' . implode(', ', $rowErrors);
+                    continue;
+                }
+
                 $department = Department::firstOrCreate(['name' => $deptName]);
                 $area = Area::firstOrCreate(['name' => $areaName]);
                 $line = !empty($lineName) ? Line::firstOrCreate(['name' => $lineName]) : null;
@@ -126,11 +139,17 @@ class ShiftController extends Controller
                         'updatedBy' => Auth::user()->username,
                     ]
                 );
+
+                $successCount++;
             }
 
-            return redirect()->back()->with('success', 'Shift data imported successfully.');
+            if (!empty($errorRows)) {
+                return redirect()->back()->with('error', 'Import failed on several rows:<br>' . implode('<br>', $errorRows));
+            }
+
+            return redirect()->back()->with('success', "Shift data imported successfully. Total successful employees: {$successCount}");
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error', 'Data not imported. Please check your Excel format.');
+            return redirect()->back()->with('error', 'Import data failed. Please double check your Excel file format or contact admin.');
         }
     }
 

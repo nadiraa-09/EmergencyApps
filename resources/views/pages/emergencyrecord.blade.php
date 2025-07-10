@@ -1,6 +1,6 @@
 @extends('layouts.header')
 
-@section('titlepage', 'Emergency Attendance')
+@section('titlepage', 'Evacuation Attendance Record')
 @section('container')
 
 <!-- Main content -->

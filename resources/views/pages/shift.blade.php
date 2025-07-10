@@ -1,6 +1,6 @@
 @extends('layouts.header')
 
-@section('titlepage', 'Shift')
+@section('titlepage', 'Upload Data Shift')
 @section('container')
 <!-- Main content -->
 <section class="content">
@@ -13,8 +13,8 @@
                             Data Shift <span class="badge badge-info">{{ $totalEmployee }} Employees</span>
                         </h5>
                         <div class="card-tools">
-                            <a class="btn btn-warning" href="{{ asset('format/shift-format.xlsx') }}" download>Format Excel</a>
-                            <a class="btn btn-primary me-2" data-toggle="modal" data-target="#modalAddEmployee">Add Shift</a>
+                            <a class="btn btn-warning" href="{{ asset('format/shift-format.xlsx') }}" download>Download Format</a>
+                            <a class="btn btn-primary me-2" data-toggle="modal" data-target="#modalAddEmployee">Upload Shift</a>
                         </div>
                     </div>
                     <div class="card-body">
@@ -23,7 +23,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -72,54 +71,36 @@
 
         @if(session('success'))
         Swal.fire({
-            toast: true,
-            position: 'bottom-end',
+            title: 'Success',
+            text: "{{ session('success') }}",
             icon: 'success',
-            title: "{{ session('success') }}",
-            background: '#28a745', // Hijau
-            color: '#fff',
-            iconColor: '#fff',
-            showConfirmButton: false,
-            timer: 5000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.reload();
             }
         });
         @endif
 
         @if(session('error'))
         Swal.fire({
-            toast: true,
-            position: 'bottom-end',
+            title: 'Error',
+            text: "{{ session('error') }}",
             icon: 'error',
-            title: "{{ session('error') }}",
-            background: '#dc3545', // Merah
-            color: '#fff',
-            iconColor: '#fff',
-            showConfirmButton: false,
-            timer: 5000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.reload();
             }
         });
         @endif
-
     });
-
 
     const getEmployees = () => {
         $('#tblEmployee').DataTable({});
     }
-
-    $("#editUser").click(function() {
-        $("#editUser").prop('disabled', true);
-        console.log('OKE');
-        // $("#formEdit").submit();
-    });
 
     const getDetailEmployee = (id) => {
         console.log("Sending badgeid:", id);
@@ -139,11 +120,10 @@
             },
             error: (xhr) => {
                 console.error("Error response: ", xhr.responseText);
-                Swal.fire("Error", "Gagal memuat data employee.", "error");
+                Swal.fire("Error", "Failed to load employee data.", "error");
             }
         })
     }
-
 
     const inActiveUser = (id) => {
         Swal.fire({

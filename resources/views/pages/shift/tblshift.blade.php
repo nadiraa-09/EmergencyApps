@@ -5,7 +5,7 @@
                 <th>No</th>
                 <th>Badge ID</th>
                 <th>Name</th>
-                <th>Jenis Shift</th>
+                <th>Shift Type</th>
                 <th>Shift</th>
                 <th>Department</th>
                 <th>Line</th>

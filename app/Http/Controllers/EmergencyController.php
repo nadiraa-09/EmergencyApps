@@ -71,7 +71,7 @@ class EmergencyController extends Controller
         }
 
         return view('pages.emergencyrecord', [
-            'menu' => 'Emergency Record',
+            'menu' => 'Evacuation Attendance',
             'areas' => Area::all(),
             'lines' => Line::all(),
             'roles' => Role::all(),

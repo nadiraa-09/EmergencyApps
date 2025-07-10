@@ -3,7 +3,7 @@
         <a href="{{ asset('pages/emergency') }}" class="nav-link {{ Request::routeIs('emergency') ? 'active' : '' }}">
             <i class="nav-icon fas fa-ticket-alt"></i>
             <p>
-                Emergency Attendance
+                Evacuation Attendance
             </p>
         </a>
     </li>

@@ -54,8 +54,9 @@ class EmergencyController extends Controller
         // Hitung total karyawan, hadir, dan tidak hadir
         $totalEmployee = $datas->unique('badgeid')->count();
         $totalEmployeeHadir = $datas->filter(function ($data) {
-            return ($data->record?->status ?? '') === 'Hadir';
+            return in_array($data->record?->status ?? '', ['Hadir', 'Masuk setengah hari']);
         })->count();
+
         $totalEmployeeTidakHadir = $datas->filter(function ($data) {
             return ($data->record?->status ?? '') === 'Absen';
         })->count();

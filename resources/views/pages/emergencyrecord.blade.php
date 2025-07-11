@@ -198,7 +198,7 @@
                         $('#tblEvacuation').DataTable().destroy();
                     }
                     $('#tblEvacuation').DataTable({
-                        pageLength: 20
+                        pageLength: 1000
                     });
                     toggleEmergencyColumns($('#filterShift').val());
                 }, 50);
@@ -211,7 +211,7 @@
                         $('#tbldailyattendace').DataTable().destroy();
                     }
                     $('#tbldailyattendace').DataTable({
-                        pageLength: 20
+                        pageLength: 1000
                     });
                     toggleEmergencyColumns($('#filterShift').val());
                 }, 50);
@@ -585,10 +585,10 @@
 
                 setTimeout(() => {
                     const dataTableDaily = $('#tbldailyattendace').DataTable({
-                        pageLength: 20,
+                        pageLength: 1000,
                     });
                     const dataTableEvac = $('#tblEvacuation').DataTable({
-                        pageLength: 20,
+                        pageLength: 1000,
                     });
                     dataTableDaily.on('draw', function() {
                         toggleEmergencyColumns(shift);

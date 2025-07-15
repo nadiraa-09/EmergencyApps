@@ -2,161 +2,165 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
-use App\Models\Area;
-use App\Models\Department;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Employee;
+use App\Models\Department;
+use App\Models\Area;
+use App\Models\Record;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // Perhitungan total hadir per shift
-        $shift1 = Employee::whereHas('record', fn($q) => $q->where('status', 'hadir')->where('inactive', 1)->where('curshift', '1'))->count();
-        $shift2 = Employee::whereHas('record', fn($q) => $q->where('status', 'hadir')->where('inactive', 1)->where('curshift', '2'))->count();
-        $shift3 = Employee::whereHas('record', fn($q) => $q->where('status', 'hadir')->where('inactive', 1)->where('curshift', '3'))->count();
-        $shiftN = Employee::whereHas('record', fn($q) => $q->where('status', 'hadir')->where('inactive', 1)->where('curshift', 'N'))->count();
+        $shifts = Record::where('inactive', 1)
+            ->whereIn('status', ['Hadir', 'Masuk setengah hari', 'Absen'])
+            ->distinct()
+            ->pluck('curshift')
+            ->toArray();
 
-        // Ambil data kehadiran yang aktif
-        $employees = Employee::with(['record', 'department', 'area'])
-            ->whereHas('record', fn($q) => $q->where('status', 'hadir')->where('inactive', 1))
-            ->get();
+        $shiftData = [];
+        foreach ($shifts as $s) {
+            $total = Employee::whereHas(
+                'record',
+                fn($q) =>
+                $q->where('curshift', $s)->where('inactive', 1)
+            )->count();
 
-        // Ambil semua department & area
-        $departments = Department::all();
-        $areas = Area::all();
-        $shifts = ['1', '2', '3', 'N'];
+            $hadir = Employee::whereHas(
+                'record',
+                fn($q) =>
+                $q->where('curshift', $s)
+                    ->whereIn('status', ['Hadir', 'Masuk setengah hari'])
+                    ->where('inactive', 1)
+            )->count();
 
-        // Hitung kehadiran per department + shift
-        $kehadiranPerDept = [];
-        foreach ($departments as $dept) {
-            foreach ($shifts as $shift) {
-                $jumlah = $employees->filter(function ($e) use ($dept, $shift) {
-                    return $e->department && $e->department->id === $dept->id && $e->record?->curshift === $shift;
-                })->count();
+            $absen = Employee::whereHas(
+                'record',
+                fn($q) =>
+                $q->where('curshift', $s)
+                    ->where('status', 'Absen')
+                    ->where('inactive', 1)
+            )->count();
 
-                $kehadiranPerDept[] = (object)[
-                    'department_name' => $dept->name,
-                    'curshift' => $shift,
-                    'jumlah_hadir' => $jumlah ?: '-',
-                ];
-            }
+            $shiftData[$s] = compact('total', 'hadir', 'absen');
         }
 
-        // Ambil master list department & area
+        $employees = Employee::with(['record', 'department', 'area'])
+            ->whereHas(
+                'record',
+                fn($q) =>
+                $q->whereIn('status', ['Hadir', 'Masuk setengah hari'])
+                    ->where('inactive', 1)
+            )->get();
+
         $departments = Department::all();
         $areas = Area::all();
-        $shifts = ['1', '2', '3', 'N'];
 
-        // Build kehadiran per department + shift
+        // === Kehadiran Per Department ===
         $kehadiranPerDept = [];
         foreach ($departments as $dept) {
+            $found = false;
             foreach ($shifts as $shift) {
-                $jumlah = $employees->filter(
+                $filtered = $employees->filter(
                     fn($e) =>
                     $e->department && $e->department->id === $dept->id &&
                         $e->record?->curshift === $shift
-                )->count();
+                );
+
+                $jumlah_hadir = $filtered->count();
+                $total_employee = Employee::where('departmentId', $dept->id)
+                    ->whereHas(
+                        'record',
+                        fn($q) =>
+                        $q->where('curshift', $shift)->where('inactive', 1)
+                    )->count();
+
+                $jumlah_absen = max($total_employee - $jumlah_hadir, 0);
+
+                if ($jumlah_hadir > 0 || $total_employee > 0) {
+                    $kehadiranPerDept[] = (object)[
+                        'department_name' => $dept->name,
+                        'curshift' => $shift,
+                        'total_employee' => $total_employee,
+                        'jumlah_hadir' => $jumlah_hadir,
+                        'jumlah_absen' => $jumlah_absen,
+                        'is_empty' => $jumlah_hadir === 0,
+                    ];
+                    $found = true;
+                }
+            }
+
+            if (! $found) {
+                $total_employee = Employee::where('departmentId', $dept->id)
+                    ->whereHas('record', fn($q) => $q->where('inactive', 1))
+                    ->count();
 
                 $kehadiranPerDept[] = (object)[
                     'department_name' => $dept->name,
-                    'curshift' => $shift,
-                    'jumlah_hadir' => $jumlah ?: '-',
+                    'curshift' => '-',
+                    'total_employee' => $total_employee,
+                    'jumlah_hadir' => 0,
+                    'jumlah_absen' => $total_employee,
+                    'is_empty' => true,
                 ];
             }
         }
 
-        // Build kehadiran per area + shift
+        // === Kehadiran Per Area ===
         $kehadiranPerArea = [];
         foreach ($areas as $area) {
+            $found = false;
             foreach ($shifts as $shift) {
-                $jumlah = $employees->filter(
+                $filtered = $employees->filter(
                     fn($e) =>
                     $e->area && $e->area->id === $area->id &&
                         $e->record?->curshift === $shift
-                )->count();
+                );
+
+                $jumlah_hadir = $filtered->count();
+                $total_employee = Employee::where('areaId', $area->id)
+                    ->whereHas(
+                        'record',
+                        fn($q) =>
+                        $q->where('curshift', $shift)->where('inactive', 1)
+                    )->count();
+
+                $jumlah_absen = max($total_employee - $jumlah_hadir, 0);
+
+                if ($jumlah_hadir > 0 || $total_employee > 0) {
+                    $kehadiranPerArea[] = (object)[
+                        'area_name' => $area->name,
+                        'curshift' => $shift,
+                        'total_employee' => $total_employee,
+                        'jumlah_hadir' => $jumlah_hadir,
+                        'jumlah_absen' => $jumlah_absen,
+                        'is_empty' => $jumlah_hadir === 0,
+                    ];
+                    $found = true;
+                }
+            }
+
+            if (! $found) {
+                $total_employee = Employee::where('areaId', $area->id)
+                    ->whereHas('record', fn($q) => $q->where('inactive', 1))
+                    ->count();
 
                 $kehadiranPerArea[] = (object)[
                     'area_name' => $area->name,
-                    'curshift' => $shift,
-                    'jumlah_hadir' => $jumlah ?: '-',
+                    'curshift' => '-',
+                    'total_employee' => $total_employee,
+                    'jumlah_hadir' => 0,
+                    'jumlah_absen' => $total_employee,
+                    'is_empty' => true,
                 ];
             }
         }
 
         return view('pages.dashboard', [
             'menu' => 'Dashboard',
-            'shift1' => $shift1,
-            'shift2' => $shift2,
-            'shift3' => $shift3,
-            'shiftN' => $shiftN,
+            'shiftData' => $shiftData,
             'kehadiranPerDept' => $kehadiranPerDept,
             'kehadiranPerArea' => $kehadiranPerArea,
-        ]);
-    }
-
-    public function filter(Request $request)
-    {
-        $shiftFilter = $request->input('shift', 'All');
-
-        $departments = Department::all();
-        $areas = Area::all();
-        $shifts = ['1', '2', '3', 'N'];
-
-        // Ambil semua employee yang aktif hadir
-        $employees = Employee::with(['record', 'department', 'area'])
-            ->whereHas(
-                'record',
-                fn($q) =>
-                $q->where('status', 'hadir')->where('inactive', 1)
-            )->get();
-
-        // Hitung kehadiran per department
-        $kehadiranPerDept = [];
-        foreach ($departments as $dept) {
-            foreach ($shifts as $shift) {
-                $jumlah = $employees->filter(
-                    fn($e) =>
-                    $e->department && $e->department->id === $dept->id &&
-                        $e->record?->curshift === $shift
-                )->count();
-
-                $kehadiranPerDept[] = (object)[
-                    'department_name' => $dept->name,
-                    'curshift' => $shift,
-                    'jumlah_hadir' => $jumlah ?: '-',
-                ];
-            }
-        }
-
-        // Hitung kehadiran per area
-        $kehadiranPerArea = [];
-        foreach ($areas as $area) {
-            foreach ($shifts as $shift) {
-                $jumlah = $employees->filter(
-                    fn($e) =>
-                    $e->area && $e->area->id === $area->id &&
-                        $e->record?->curshift === $shift
-                )->count();
-
-                $kehadiranPerArea[] = (object)[
-                    'area_name' => $area->name,
-                    'curshift' => $shift,
-                    'jumlah_hadir' => $jumlah ?: '-',
-                ];
-            }
-        }
-
-        return response()->json([
-            'department' => view('pages.dashboard.tbldepartment', [
-                'kehadiranPerDept' => $kehadiranPerDept,
-                'shiftFilter' => $shiftFilter,
-            ])->render(),
-            'area' => view('pages.dashboard.tblarea', [
-                'kehadiranPerArea' => $kehadiranPerArea,
-                'shiftFilter' => $shiftFilter,
-            ])->render(),
         ]);
     }
 }

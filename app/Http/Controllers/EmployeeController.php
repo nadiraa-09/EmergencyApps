@@ -151,8 +151,9 @@ class EmployeeController extends Controller
         } else {
             // Buat user baru dengan data dari employee
             try {
-                User::create([
+                User::updateOrCreate([
                     'username' => $employee->badgeid,
+                ], [
                     'name' => $employee->name,
                     'password' => Hash::make($employee->badgeid),
                     'roleId' => $validated['roleId'],

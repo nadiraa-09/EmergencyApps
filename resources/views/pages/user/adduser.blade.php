@@ -21,6 +21,10 @@
                     <input type="text" name="name" id="name" class="form-control" required>
                 </div>
                 <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" name="email" id="email" class="form-control">
+                </div>
+                <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" name="password" id="password" class="form-control" required>
                 </div>
@@ -41,6 +45,16 @@
                         <option value="">Select Department</option>
                         @foreach ($departments as $department)
                         <option value="{{ $department->id }}">{{ $department->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="areaId">Area</label>
+                    <select name="areaId" id="areaId" class="form-control" required>
+                        <option value="">Select Area</option>
+                        @foreach ($areas as $area)
+                        <option value="{{ $area->id }}">{{ $area->name }}
                         </option>
                         @endforeach
                     </select>

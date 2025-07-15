@@ -5,6 +5,7 @@
                 <th>No</th>
                 <th>Username</th>
                 <th>Name</th>
+                <th>Email</th>
                 <th>Role</th>
                 <th>Department</th>
                 <th>Action</th>
@@ -16,6 +17,7 @@
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $data->username }}</td>
                 <td>{{ $data->name }}</td>
+                <td>{{ $data->email }}</td>
                 <td>{{ $data->role->name }}</td>
                 <td>{{ $data->department->name }}</td>
                 <td>

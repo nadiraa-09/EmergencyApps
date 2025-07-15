@@ -40,7 +40,7 @@ Route::prefix('pages')->group(function () {
     Route::get('user', [UserController::class, 'index'])->middleware(['auth', 'MustAdmin'])->name('user');
     Route::post('useradd', [UserController::class, 'store'])->middleware(['auth', 'MustAdmin'])->name('add-user');
     Route::post('userdetail', [UserController::class, 'show'])->middleware(['auth', 'MustAdmin'])->name('detail-user');
-    Route::patch('user/{id}', [UserController::class, 'update'])->middleware(['auth', 'MustAdmin'])->name('update-user');
+    Route::patch('userupdate/{id}', [UserController::class, 'update'])->middleware(['auth', 'MustAdmin'])->name('update-user');
     Route::patch('userinactive/{id}', [UserController::class, 'inactive'])->middleware(['auth', 'MustAdmin'])->name('inactive-user');
     Route::patch('update-password/{id}', [UserController::class, 'updatePassword'])->middleware(['auth', 'MustAdmin'])->name('update.password');
 

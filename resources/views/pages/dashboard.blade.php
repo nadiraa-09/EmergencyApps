@@ -19,7 +19,7 @@
 
         @php
         $shifts = [
-        'N' => ['label' => 'Normal', 'color' => 'bg-gradient-success', 'icon' => 'bi-person-lines-fill'],
+        'N' => ['label' => 'Normal', 'color' => 'bg-gradient-success', 'icon' => 'bi-journal-text'],
         '1' => ['label' => 'Morning', 'color' => 'bg-gradient-info', 'icon' => 'bi-brightness-high-fill'],
         '2' => ['label' => 'Afternoon', 'color' => 'bg-gradient-warning', 'icon' => 'bi-sun'],
         '3' => ['label' => 'Evening', 'color' => 'bg-gradient-primary', 'icon' => 'bi-moon-stars-fill'],
@@ -31,15 +31,22 @@
             <div class="col d-flex">
                 <div class="card w-100 text-white shadow border-0 {{ $shift['color'] }} rounded-4 hover-shadow transition">
                     <div class="card-body d-flex align-items-center gap-3 py-3 px-4">
-                        <i class="bi {{ $shift['icon'] }} fs-2"></i>
+
                         <div class="text-start">
-                            <h6 class="mb-1 fw-bold" style="color: #fff;">
-                                Shift <span style="color: #531a22ff;">{{ $shift['label'] }}</span>
-                            </h6>
-                            <div class="small fw-bold" style="color: #250202ff;">
-                                <div>Total Employee: <span class="fw-bold">{{ $shiftData[$code]['total'] ?? 0 }}</span></div>
-                                <div>Attendance: <span class="fw-bold">{{ $shiftData[$code]['hadir'] ?? 0 }}</span></div>
-                                <div>Absent: <span class="fw-bold text-danger">{{ $shiftData[$code]['absen'] ?? 0 }}</span></div>
+                            <div class="row">
+                                <div class="fw-bold" style="color: #250202ff; margin-left: 1rem; margin-right: 3rem;">
+                                    <i class="bi {{ $shift['icon'] }} fs-3 mb-2"></i>
+                                    <h5 class="mb-1 fw-bold" style="color: #fff;">
+                                        <span style="color: #531a22ff;">{{ $shift['label'] }}</span>
+                                    </h5>
+                                    <h6 class="mb-2 fw-semibold" style="color: #250202ff; font-size: 1.15rem;">Shift</h6>
+                                </div>
+
+                                <div class="fw-bold" style="color: #250202ff; font-size: 1.1rem;">
+                                    <div>Total: <span class="fw-bold">{{ $shiftData[$code]['total'] ?? 0 }}</span></div>
+                                    <div>Attendance: <span class="fw-bold">{{ $shiftData[$code]['hadir'] ?? 0 }}</span></div>
+                                    <div>Absent: <span class="fw-bold text-danger">{{ $shiftData[$code]['absen'] ?? 0 }}</span></div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -230,6 +230,7 @@
                     <div class="card-body">
                         <form action="process/Auth.process.php" class="js-validate needs-validation" method="post"
                             novalidate>
+                            @csrf
                             <div class="mb-4">
                                 <input type="text" class="form-control form-control-lg" name="username"
                                     id="username" placeholder="nomor badge" aria-label="username" required>

@@ -49,7 +49,13 @@ class EmergencyController extends Controller
             $query->where('lineId', $line);
         }
 
-        $datas = $query->orderBy('badgeid', 'asc')->latest()->paginate(1000000);
+        $datas = $query->orderByRaw("
+    CASE 
+        WHEN badgeid REGEXP '^[0-9]' THEN 1
+        ELSE 0
+    END ASC,
+    badgeid ASC
+")->paginate(1000000);
 
         // Hitung total karyawan, hadir, dan tidak hadir
         $totalEmployee = $datas->unique('badgeid')->count();

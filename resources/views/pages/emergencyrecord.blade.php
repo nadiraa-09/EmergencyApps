@@ -30,7 +30,12 @@
                             <!-- Filter Shift -->
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="filterShift">Pilih Shift</label>
+                                    <label for="filterShift">
+                                        Pilih Shift
+                                        <small class="text-danger fw-bold d-block">
+                                            ⚠️ Untuk melakukan absen, pilih shift terlebih dahulu!
+                                        </small>
+                                    </label>
                                     <select name="filterShift" id="filterShift" onchange="filterReport()" class="form-control">
                                         <option value="All">All</option>
                                         <option value="N">Normal</option>
@@ -46,7 +51,11 @@
                                 <!-- Filter Line -->
                                 @if($userDeptId == 13 || $userDeptId == 14)
                                 <div class="form-group">
-                                    <label for="filterLine">Pilih Line</label>
+                                    <label for="filterLine">Pilih Line
+                                        <small class="text-danger fw-bold d-block">
+                                            ⚠️ Untuk melakukan absen, pilih line terlebih dahulu!
+                                        </small>
+                                    </label>
                                     <select name="filterLine" id="filterLine" onchange="filterReport()" class="form-control">
                                         <option value="All">All</option>
                                         @foreach ($lines as $line)
@@ -159,7 +168,7 @@
                 <textarea id="remarkText" class="form-control" rows="4" placeholder="Masukkan remark di sini..."></textarea>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                 <button type="button" class="btn btn-primary" onclick="saveRemark()">Simpan</button>
             </div>
         </div>

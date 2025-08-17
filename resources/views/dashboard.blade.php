@@ -1,4 +1,4 @@
-@extends('layouts.header')
+@extends('layouts.headerdashboard')
 
 @section('container')
 <section class="content">
@@ -7,7 +7,7 @@
         <div class="text-center">
             <h1 class="display-5 fw-bold text-uppercase text-primary-emphasis">
                 <i class="bi bi-clipboard-data me-2"></i>
-                Evacuation Attendance Report
+                Attendance Report
             </h1>
 
             <p class="text-muted fs-6 fst-italic">
@@ -56,6 +56,17 @@
             </div>
             @endforeach
         </div>
+
+        <style>
+            table {
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            }
+
+            table:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            }
+        </style>
 
         <!-- Data Tabel Departemen & Area -->
         <!-- <div class="row g-4">
@@ -123,26 +134,32 @@
 </script>
 
 <style>
-    .hover-shadow:hover {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2) !important;
-        transform: scale(1.02);
+    /* Tambahkan jarak atas & bawah agar tidak nempel */
+    .content {
+        min-height: calc(100vh - 120px);
+        /* sesuaikan 120px dengan tinggi footer/header */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        /* Vertikal center */
+        padding-top: 20px;
+        /* Jarak kecil atas */
+        padding-bottom: 20px;
     }
 
-    .transition {
-        transition: all 0.3s ease-in-out;
+    .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
-    .text-danger-row {
-        background-color: #250202ff !important;
-        color: #250202ff !important;
+    /* Judul supaya lebih estetik */
+    .content .text-center h1 {
+        margin-bottom: 0.5rem;
     }
 
-    table.dataTable tbody tr.text-danger td {
-        background-color: #eba8afff;
-    }
-
-    .card .bi {
-        opacity: 0.9;
+    /* Spasi antar tabel */
+    .row.g-4 {
+        margin-top: 1.5rem;
     }
 </style>
 @endsection

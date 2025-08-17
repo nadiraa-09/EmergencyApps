@@ -17,6 +17,8 @@ Route::get('/', function () {
     return view('login.index');
 });
 
+Route::get('/home', [DashboardController::class, 'index2']);
+
 Route::get('/in', function () {
     return view('record.in');
 });

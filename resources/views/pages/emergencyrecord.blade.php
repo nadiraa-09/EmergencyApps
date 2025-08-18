@@ -25,11 +25,15 @@
                                 </li>
                             </ul>
                         </div>
-
                         <div class="row p-2">
                             <!-- Filter Shift -->
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <div class="card-tools d-flex justify-content-end">
+                                        <a class="btn btn-warning me-2" data-toggle="modal" data-target="#modalAddVisitor">
+                                            Add Visitor
+                                        </a>
+                                    </div>
                                     <label for="filterShift">
                                         Pilih Shift
                                         <small class="text-danger fw-bold d-block">
@@ -136,6 +140,48 @@
     </div>
 </div>
 
+<!-- Modal Add Visitor -->
+<div class="modal fade" id="modalAddVisitor" tabindex="-1" aria-labelledby="modalAddVisitorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-3 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalAddVisitorLabel">Daftar Visitor & Tambah Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Tabel List Visitor -->
+                <div class="mb-3">
+                    <h6 class="fw-bold">List Visitor</h6>
+                    <div class="dashDataVisitor">
+                        @include('pages.emergency.tblvisitor', [
+                        'visitors' => $visitors,
+                        'areas' => $visitorAreas
+                        ])
+                    </div>
+                </div>
+
+                <!-- Form Tambah Visitor -->
+                <div>
+                    <h6 class="fw-bold">Tambah Employee</h6>
+                    <form id="formAddVisitor" method="POST" action="{{ route('visitors.store') }}">
+                        @csrf
+                        <div class="row g-2">
+                            <div class="col-md-12">
+                                <input type="text" name="name" class="form-control" placeholder="Nama" required>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                            <button type="submit" class="btn btn-primary">Tambah</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Modal Detail -->
 <div class="modal fade" id="modelDetail" tabindex="-1" role="dialog" aria-labelledby="modelTitleId"
     aria-hidden="true">
@@ -226,6 +272,44 @@
                 }, 50);
             }
         });
+
+        @if(session('success'))
+        Swal.fire({
+            toast: true,
+            position: 'bottom-end',
+            icon: 'success',
+            title: "{{ session('success') }}",
+            background: '#28a745', // Hijau
+            color: '#fff',
+            iconColor: '#fff',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+        @endif
+
+        @if(session('error'))
+        Swal.fire({
+            toast: true,
+            position: 'bottom-end',
+            icon: 'error',
+            title: "{{ session('error') }}",
+            background: '#dc3545', // Merah
+            color: '#fff',
+            iconColor: '#fff',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+        @endif
     });
 
     window.addEventListener('load', function() {

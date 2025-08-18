@@ -3,7 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EmployeeController;
@@ -59,6 +59,7 @@ Route::prefix('pages')->group(function () {
     Route::post('save-emergency', [EmergencyController::class, 'store'])->middleware(['auth', 'MustLeader'])->name('save-emergency');
     Route::post('save-evacuation', [EmergencyController::class, 'storeEvacuation'])->middleware(['auth', 'MustLeader'])->name('save-evacuation');
     Route::get('filteremergency', [EmergencyController::class, 'index'])->middleware(['auth', 'MustLeader'])->name('emergency-filter');
+    Route::resource('visitors', VisitorController::class)->only(['index', 'store', 'destroy']);
 
     Route::get('report', [ReportController::class, 'index'])->middleware('auth', 'MustDepthead')->name('report');
     Route::post('report', [ReportController::class, 'filter'])->middleware('auth', 'MustDepthead')->name('reportfilter');

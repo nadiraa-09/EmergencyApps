@@ -67,31 +67,6 @@
                 box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             }
         </style>
-
-        <!-- Data Tabel Departemen & Area -->
-        <!-- <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card shadow border-0 rounded-3">
-                    <div class="card-header bg-secondary text-white text-center fw-semibold rounded-top">
-                        <i class="bi bi-building me-2"></i>Data by Department
-                    </div>
-                    <div class="card-body dashDataDepartment px-3 py-2">
-                        @include('pages.dashboard.tbldepartment')
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card shadow border-0 rounded-3">
-                    <div class="card-header bg-secondary text-white text-center fw-semibold rounded-top">
-                        <i class="bi bi-geo-alt-fill me-2"></i>Data by Area
-                    </div>
-                    <div class="card-body dashDataArea px-3 py-2">
-                        @include('pages.dashboard.tblarea')
-                    </div>
-                </div>
-            </div>
-        </div> -->
     </div>
 </section>
 @endsection
@@ -99,25 +74,10 @@
 @section('scripts')
 <script>
     $(document).ready(() => {
-        initTables();
         setInterval(() => {
             window.location.reload();
-        }, 30000); // Reload full page every 30 seconds
+        }, 15000); // Reload full page every 15 seconds
     });
-
-    function initTables() {
-        ['#tblDepartment', '#tblArea'].forEach(id => {
-            if ($.fn.DataTable.isDataTable(id)) {
-                $(id).DataTable().destroy();
-            }
-            $(id).DataTable({
-                responsive: true,
-                autoWidth: false,
-                pageLength: 5,
-                lengthChange: false
-            });
-        });
-    }
 
     function updateClock() {
         const now = new Date();

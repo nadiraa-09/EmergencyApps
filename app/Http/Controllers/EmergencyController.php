@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\Record;
 use App\Models\Evacuation;
 use App\Models\Shift;
+use App\Models\Visitor;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
@@ -30,7 +31,6 @@ class EmergencyController extends Controller
 
         $userAuth = Auth::user()->roleId;
         if ($userAuth == 3 || $userAuth == 4) {
-            // If the user is a supervisor or manager, filter by their department
             $areaId = Auth::user()->areaId;
             $query = Employee::with(['shift', 'line'])
                 ->where('inactive', '1')
@@ -50,22 +50,29 @@ class EmergencyController extends Controller
         }
 
         $datas = $query->orderByRaw("
-    CASE 
-        WHEN badgeid REGEXP '^[0-9]' THEN 1
-        ELSE 0
-    END ASC,
-    badgeid ASC
-")->paginate(1000000);
+        CASE 
+            WHEN badgeid REGEXP '^[0-9]' THEN 1
+            ELSE 0
+        END ASC,
+        badgeid ASC
+    ")->paginate(1000000);
 
-        // Hitung total karyawan, hadir, dan tidak hadir
+        // --- Hitung total ---
         $totalEmployee = $datas->unique('badgeid')->count();
         $totalEmployeeHadir = $datas->filter(function ($data) {
             return in_array($data->record?->status ?? '', ['Hadir', 'Masuk setengah hari']);
         })->count();
-
         $totalEmployeeTidakHadir = $datas->filter(function ($data) {
             return ($data->record?->status ?? '') === 'Absen';
         })->count();
+
+        // --- Tambahkan visitor ---
+        $visitors = Visitor::with('area')
+            ->where('inactive', 1)
+            ->get();
+
+        $visitorAreas = Area::all();
+
 
         if ($request->ajax()) {
             return response()->json([
@@ -90,6 +97,8 @@ class EmergencyController extends Controller
             'totalEmployee' => $totalEmployee,
             'totalEmployeeHadir' => $totalEmployeeHadir,
             'totalEmployeeTidakHadir' => $totalEmployeeTidakHadir,
+            'visitors' => $visitors,
+            'visitorAreas' => $visitorAreas,
         ]);
     }
 

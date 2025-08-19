@@ -63,4 +63,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Department::class, 'departmentId', 'id');
     }
+
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'areaId', 'id');
+    }
 }

@@ -30,9 +30,11 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <div class="card-tools d-flex justify-content-end">
+                                        @if(Auth::check() && Auth::user()->area && Auth::user()->area->visitor == '1')
                                         <a class="btn btn-warning me-2" data-toggle="modal" data-target="#modalAddVisitor">
                                             Add Visitor
                                         </a>
+                                        @endif
                                     </div>
                                     <label for="filterShift">
                                         Pilih Shift
